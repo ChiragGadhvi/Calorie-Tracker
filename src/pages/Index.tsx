@@ -18,6 +18,11 @@ interface Meal {
   timestamp: Date;
 }
 
+interface ClassificationResult {
+  label: string;
+  score: number;
+}
+
 const Index = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [meals, setMeals] = useState<Meal[]>(() => {
@@ -39,7 +44,7 @@ const Index = () => {
       );
 
       // Classify the image
-      const results = await classifier(imageData);
+      const results = await classifier(imageData) as ClassificationResult[];
       const topResult = results[0];
 
       // Generate a more detailed description based on the classification
@@ -158,11 +163,11 @@ const Index = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-primary/10 p-3 rounded-lg">
               <p className="text-sm text-gray-600">Calories</p>
-              <p className="text-xl font-bold text-primary">{todaysMeals.reduce((sum, meal) => sum + meal.calories, 0)}</p>
+              <p className="text-xl font-bold text-primary">{totalCalories}</p>
             </div>
             <div className="bg-secondary/10 p-3 rounded-lg">
               <p className="text-sm text-gray-600">Protein</p>
-              <p className="text-xl font-bold text-secondary">{todaysMeals.reduce((sum, meal) => sum + meal.protein, 0)}g</p>
+              <p className="text-xl font-bold text-secondary">{totalProtein}g</p>
             </div>
           </div>
         </div>
