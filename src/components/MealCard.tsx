@@ -10,11 +10,12 @@ interface MealCardProps {
   calories: number;
   protein: number;
   name: string;
+  description: string;
   timestamp: Date;
   onDelete?: () => void;
 }
 
-const MealCard = ({ image, calories, protein, name, timestamp, onDelete }: MealCardProps) => {
+const MealCard = ({ image, calories, protein, name, description, timestamp, onDelete }: MealCardProps) => {
   return (
     <Card className="w-full animate-fadeIn">
       <CardHeader className="p-4">
@@ -40,6 +41,7 @@ const MealCard = ({ image, calories, protein, name, timestamp, onDelete }: MealC
             </Button>
           )}
         </div>
+        <p className="text-sm text-gray-600 mb-3">{description}</p>
         <div className="flex justify-between text-sm text-gray-600">
           <div>
             <p className="font-medium">{calories} calories</p>

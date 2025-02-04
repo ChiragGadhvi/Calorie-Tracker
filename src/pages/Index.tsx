@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, History, Target, Upload } from 'lucide-react';
@@ -12,6 +13,7 @@ interface Meal {
   calories: number;
   protein: number;
   name: string;
+  description: string;
   timestamp: Date;
 }
 
@@ -24,12 +26,30 @@ const Index = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const analyzeMeal = async (imageData: string): Promise<{ calories: number; protein: number; name: string }> => {
+  const analyzeMeal = async (imageData: string): Promise<{ calories: number; protein: number; name: string; description: string }> => {
+    // Simulated AI analysis with sample descriptions
     await new Promise(resolve => setTimeout(resolve, 1500));
+    const mealTypes = [
+      {
+        name: "Grilled Chicken Salad",
+        description: "Fresh mixed greens topped with grilled chicken breast, cherry tomatoes, and a light vinaigrette"
+      },
+      {
+        name: "Pasta Primavera",
+        description: "Al dente pasta with seasonal vegetables and herbs in a light cream sauce"
+      },
+      {
+        name: "Salmon Bowl",
+        description: "Grilled salmon served over brown rice with roasted vegetables and avocado"
+      }
+    ];
+    const randomMeal = mealTypes[Math.floor(Math.random() * mealTypes.length)];
+    
     return {
       calories: Math.floor(Math.random() * 800) + 200,
       protein: Math.floor(Math.random() * 30) + 10,
-      name: "Detected Meal",
+      name: randomMeal.name,
+      description: randomMeal.description,
     };
   };
 
