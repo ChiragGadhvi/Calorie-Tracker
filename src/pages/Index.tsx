@@ -81,28 +81,40 @@ const Index = () => {
     });
 
     try {
-      const analysis = await analyzeMeal(imageData);
+      // First, upload the image to Supabase Storage
+      const timestamp = Date.now();
+      const fileName = `${timestamp}.jpg`;
       
-      // Convert base64 to blob
-      const base64Data = imageData.split(',')[1];
-      const blob = await fetch(`data:image/jpeg;base64,${base64Data}`).then(res => res.blob());
-      const file = new File([blob], `${Date.now()}.jpg`, { type: 'image/jpeg' });
-
-      // Upload image to Supabase Storage
+      // Remove the data:image/jpeg;base64, prefix
+      const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+      const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+      
+      console.log('Uploading image to Supabase Storage...');
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('meal-images')
-        .upload(file.name, file);
+        .upload(fileName, binaryData, {
+          contentType: 'image/jpeg',
+          cacheControl: '3600',
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
-      // Get the public URL using the correct method
+      console.log('Image uploaded successfully');
+      
+      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('meal-images')
-        .getPublicUrl(file.name);
+        .getPublicUrl(fileName);
 
-      console.log('Public URL:', publicUrl); // Add this for debugging
+      console.log('Generated public URL:', publicUrl);
 
-      // Save meal to database
+      // Now analyze the meal with the original image data
+      const analysis = await analyzeMeal(imageData);
+      
+      // Save meal to database with the public URL
       const { error: insertError } = await supabase
         .from('meals')
         .insert([
