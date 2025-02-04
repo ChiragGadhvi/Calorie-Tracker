@@ -25,6 +25,8 @@ serve(async (req) => {
       )
     }
 
+    console.log('Calling OpenAI API with image...')
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -37,13 +39,17 @@ serve(async (req) => {
             },
             {
               type: "image_url",
-              image_url: image,
+              image_url: {
+                url: image
+              }
             },
           ],
         },
       ],
       max_tokens: 500,
     })
+
+    console.log('OpenAI API response received')
 
     const response = completion.choices[0].message.content
     let analysis = JSON.parse(response || '{}')
