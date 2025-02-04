@@ -1,69 +1,74 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, History, Target, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CameraComponent from '@/components/Camera';
 import MealCard from '@/components/MealCard';
 import { useToast } from '@/components/ui/use-toast';
-import { pipeline } from '@huggingface/transformers';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Meal {
   id: string;
-  image: string;
+  image_url: string;
   calories: number;
   protein: number;
   name: string;
   description: string;
-  timestamp: Date;
-}
-
-interface ClassificationResult {
-  label: string;
-  score: number;
+  created_at: string;
 }
 
 const Index = () => {
   const [showCamera, setShowCamera] = useState(false);
-  const [meals, setMeals] = useState<Meal[]>(() => {
-    const saved = localStorage.getItem('meals');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const analyzeMeal = async (imageData: string): Promise<{ calories: number; protein: number; name: string; description: string }> => {
+  useEffect(() => {
+    fetchMeals();
+  }, []);
+
+  const fetchMeals = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('meals')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMeals(data || []);
+    } catch (error) {
+      console.error('Error fetching meals:', error);
+      toast({
+        title: "Error loading meals",
+        description: "There was a problem loading your meal history.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const analyzeMeal = async (imageData: string) => {
     setIsAnalyzing(true);
     try {
-      // Create image classification pipeline
-      const classifier = await pipeline(
-        'image-classification',
-        'onnx-community/mobilenetv4_conv_small.e2400_r224_in1k',
-        { device: 'cpu' }
-      );
+      const response = await fetch('https://pieymelbjcvhxcnonpms.supabase.co/functions/v1/analyze-meal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ image: imageData }),
+      });
 
-      // Classify the image
-      const results = await classifier(imageData) as ClassificationResult[];
-      const topResult = results[0];
+      if (!response.ok) {
+        throw new Error('Failed to analyze image');
+      }
 
-      // Generate a more detailed description based on the classification
-      let description = `This appears to be ${topResult.label} with ${Math.round(topResult.score * 100)}% confidence.`;
-      
-      // Estimate calories and protein based on the detected food type
-      // This is a simple estimation - in a real app, you'd want a more sophisticated calculation
-      const calories = Math.floor(Math.random() * 400) + 200; // Simple random estimation
-      const protein = Math.floor(Math.random() * 20) + 5; // Simple random estimation
-
-      return {
-        calories,
-        protein,
-        name: topResult.label.split(',')[0], // Take the first part of the label
-        description,
-      };
+      const analysis = await response.json();
+      return analysis;
     } catch (error) {
       console.error('Error analyzing image:', error);
-      throw new Error('Failed to analyze image');
+      throw error;
     } finally {
       setIsAnalyzing(false);
     }
@@ -77,25 +82,41 @@ const Index = () => {
 
     try {
       const analysis = await analyzeMeal(imageData);
-      const newMeal: Meal = {
-        id: Date.now().toString(),
-        image: imageData,
-        ...analysis,
-        timestamp: new Date(),
-      };
+      
+      // Upload image to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('meal-images')
+        .upload(`${Date.now()}.jpg`, imageData);
 
-      const updatedMeals = [newMeal, ...meals];
-      setMeals(updatedMeals);
-      localStorage.setItem('meals', JSON.stringify(updatedMeals));
+      if (uploadError) throw uploadError;
+
+      const { data: imageUrlData } = supabase.storage
+        .from('meal-images')
+        .getPublicUrl(uploadData.path);
+
+      // Save meal to database
+      const { error: insertError } = await supabase
+        .from('meals')
+        .insert([
+          {
+            image_url: imageUrlData.publicUrl,
+            ...analysis,
+          }
+        ]);
+
+      if (insertError) throw insertError;
+
+      await fetchMeals();
 
       toast({
         title: "Meal added successfully!",
         description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
       });
     } catch (error) {
+      console.error('Error:', error);
       toast({
         title: "Error analyzing meal",
-        description: "There was an error processing your image. Please try again.",
+        description: "There was a problem processing your image. Please try again.",
         variant: "destructive",
       });
     }
@@ -115,20 +136,34 @@ const Index = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleDeleteMeal = (mealId: string) => {
-    const updatedMeals = meals.filter(meal => meal.id !== mealId);
-    setMeals(updatedMeals);
-    localStorage.setItem('meals', JSON.stringify(updatedMeals));
-    
-    toast({
-      title: "Meal deleted",
-      description: "The meal has been removed from your history.",
-    });
+  const handleDeleteMeal = async (mealId: string) => {
+    try {
+      const { error } = await supabase
+        .from('meals')
+        .delete()
+        .eq('id', mealId);
+
+      if (error) throw error;
+
+      await fetchMeals();
+      
+      toast({
+        title: "Meal deleted",
+        description: "The meal has been removed from your history.",
+      });
+    } catch (error) {
+      console.error('Error deleting meal:', error);
+      toast({
+        title: "Error deleting meal",
+        description: "There was a problem deleting the meal. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
-    const mealDate = new Date(meal.timestamp);
+    const mealDate = new Date(meal.created_at);
     return (
       mealDate.getDate() === today.getDate() &&
       mealDate.getMonth() === today.getMonth() &&
@@ -199,7 +234,13 @@ const Index = () => {
 
         <div className="space-y-4">
           {todaysMeals.map((meal) => (
-            <MealCard key={meal.id} {...meal} onDelete={() => handleDeleteMeal(meal.id)} />
+            <MealCard 
+              key={meal.id} 
+              {...meal} 
+              image={meal.image_url}
+              timestamp={new Date(meal.created_at)}
+              onDelete={() => handleDeleteMeal(meal.id)} 
+            />
           ))}
           {todaysMeals.length === 0 && (
             <p className="text-center text-gray-500 py-8">
