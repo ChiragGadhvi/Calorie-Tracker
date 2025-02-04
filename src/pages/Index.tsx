@@ -83,23 +83,31 @@ const Index = () => {
     try {
       const analysis = await analyzeMeal(imageData);
       
+      // Convert base64 to blob
+      const base64Data = imageData.split(',')[1];
+      const blob = await fetch(`data:image/jpeg;base64,${base64Data}`).then(res => res.blob());
+      const file = new File([blob], `${Date.now()}.jpg`, { type: 'image/jpeg' });
+
       // Upload image to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('meal-images')
-        .upload(`${Date.now()}.jpg`, imageData);
+        .upload(file.name, file);
 
       if (uploadError) throw uploadError;
 
-      const { data: imageUrlData } = supabase.storage
+      // Get the public URL using the correct method
+      const { data: { publicUrl } } = supabase.storage
         .from('meal-images')
-        .getPublicUrl(uploadData.path);
+        .getPublicUrl(file.name);
+
+      console.log('Public URL:', publicUrl); // Add this for debugging
 
       // Save meal to database
       const { error: insertError } = await supabase
         .from('meals')
         .insert([
           {
-            image_url: imageUrlData.publicUrl,
+            image_url: publicUrl,
             ...analysis,
           }
         ]);
