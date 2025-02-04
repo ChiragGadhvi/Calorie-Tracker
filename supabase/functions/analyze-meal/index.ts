@@ -38,14 +38,18 @@ serve(async (req) => {
     console.log('Calling OpenAI API with image...')
     
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
+        {
+          role: "system",
+          content: "You are a meal analysis assistant. Always respond with valid JSON containing exactly these keys: name (string), calories (number), protein (number), description (string). Format numbers without decimal points."
+        },
         {
           role: "user",
           content: [
             { 
               type: "text", 
-              text: "Analyze this meal image and provide: 1) A name for the dish, 2) An estimated calorie count, 3) An estimated protein content in grams, 4) A brief description. Format your response as JSON with keys: name, calories, protein, description" 
+              text: "Analyze this meal image and provide: 1) A name for the dish, 2) An estimated calorie count, 3) An estimated protein content in grams, 4) A brief description." 
             },
             {
               type: "image_url",
@@ -66,6 +70,8 @@ serve(async (req) => {
       throw new Error('No response from OpenAI')
     }
 
+    console.log('Raw OpenAI response:', response)
+
     let analysis
     try {
       analysis = JSON.parse(response)
@@ -73,6 +79,14 @@ serve(async (req) => {
       console.error('Error parsing OpenAI response:', error)
       console.log('Raw response:', response)
       throw new Error('Failed to parse OpenAI response')
+    }
+
+    // Validate required fields and data types
+    const requiredFields = ['name', 'calories', 'protein', 'description']
+    for (const field of requiredFields) {
+      if (!(field in analysis)) {
+        throw new Error(`Missing required field: ${field}`)
+      }
     }
 
     // Ensure all required fields are present and convert to numbers
