@@ -42,14 +42,14 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are a meal analysis assistant. Always respond with valid JSON containing exactly these keys: name (string), calories (number), protein (number), description (string). Format numbers without decimal points."
+          content: "You are a meal analysis assistant. Your responses must be valid JSON strings. Always format your responses as follows, with EXACT keys and types: {\"name\": \"string\", \"calories\": number, \"protein\": number, \"description\": \"string\"}. Use whole numbers for calories and protein. Example: {\"name\": \"Chicken Salad\", \"calories\": 350, \"protein\": 25, \"description\": \"Fresh garden salad with grilled chicken\"}"
         },
         {
           role: "user",
           content: [
             { 
               type: "text", 
-              text: "Analyze this meal image and provide: 1) A name for the dish, 2) An estimated calorie count, 3) An estimated protein content in grams, 4) A brief description." 
+              text: "Analyze this meal image. Return ONLY a JSON object with no additional text." 
             },
             {
               type: "image_url",
@@ -60,7 +60,8 @@ serve(async (req) => {
           ],
         },
       ],
-      max_tokens: 500,
+      temperature: 0.5,
+      max_tokens: 1000,
     })
 
     console.log('OpenAI API response received')
@@ -74,7 +75,9 @@ serve(async (req) => {
 
     let analysis
     try {
-      analysis = JSON.parse(response)
+      // Remove any potential markdown formatting
+      const cleanResponse = response.replace(/```json\n?|\n?```/g, '').trim()
+      analysis = JSON.parse(cleanResponse)
     } catch (error) {
       console.error('Error parsing OpenAI response:', error)
       console.log('Raw response:', response)
@@ -89,11 +92,11 @@ serve(async (req) => {
       }
     }
 
-    // Ensure all required fields are present and convert to numbers
+    // Ensure numbers are integers
     analysis = {
       ...analysis,
-      calories: parseInt(analysis.calories) || 0,
-      protein: parseInt(analysis.protein) || 0,
+      calories: Math.round(Number(analysis.calories)) || 0,
+      protein: Math.round(Number(analysis.protein)) || 0,
     }
 
     return new Response(
