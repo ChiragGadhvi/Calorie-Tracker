@@ -17,12 +17,12 @@ interface MealCardProps {
 
 const MealCard = ({ image, calories, protein, name, description, timestamp, onDelete }: MealCardProps) => {
   return (
-    <Card className="w-full animate-fadeIn overflow-hidden">
-      <div className="relative w-full aspect-[4/3]">
+    <Card className="w-full animate-fadeIn">
+      <div className="w-full h-48 relative overflow-hidden">
         <img
           src={image}
           alt={name}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-full object-cover"
         />
       </div>
       <CardContent className="p-4">
