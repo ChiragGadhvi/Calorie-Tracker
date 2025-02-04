@@ -17,17 +17,15 @@ interface MealCardProps {
 
 const MealCard = ({ image, calories, protein, name, description, timestamp, onDelete }: MealCardProps) => {
   return (
-    <Card className="w-full animate-fadeIn">
-      <CardHeader className="p-4">
-        <div className="aspect-video relative rounded-md overflow-hidden">
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
+    <Card className="w-full animate-fadeIn overflow-hidden">
+      <div className="relative w-full aspect-[4/3]">
+        <img
+          src={image}
+          alt={name}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+      <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-semibold text-lg">{name}</h3>
           {onDelete && (
@@ -48,7 +46,7 @@ const MealCard = ({ image, calories, protein, name, description, timestamp, onDe
             <p>{protein}g protein</p>
           </div>
           <div className="text-right">
-            <p>{formatDistanceToNow(new Date(timestamp), { addSuffix: true })}</p>
+            <p>{formatDistanceToNow(timestamp, { addSuffix: true })}</p>
           </div>
         </div>
       </CardContent>
