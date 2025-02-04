@@ -37,6 +37,10 @@ const Index = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      // Log the fetched meals for debugging
+      console.log('Fetched meals:', data);
+      
       setMeals(data || []);
     } catch (error) {
       console.error('Error fetching meals:', error);
@@ -81,16 +85,16 @@ const Index = () => {
     });
 
     try {
-      // First, upload the image to Supabase Storage
+      // Upload image to Supabase Storage
       const timestamp = Date.now();
       const fileName = `${timestamp}.jpg`;
       
-      // Remove the data:image/jpeg;base64, prefix
+      // Remove data URL prefix and convert to binary
       const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
       const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
       
       console.log('Uploading image to Supabase Storage...');
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('meal-images')
         .upload(fileName, binaryData, {
           contentType: 'image/jpeg',
@@ -102,30 +106,32 @@ const Index = () => {
         throw uploadError;
       }
 
-      console.log('Image uploaded successfully');
-      
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
+      // Get the public URL for the uploaded image
+      const { data: urlData } = supabase.storage
         .from('meal-images')
         .getPublicUrl(fileName);
 
-      console.log('Generated public URL:', publicUrl);
+      const publicUrl = urlData.publicUrl;
+      console.log('Image public URL:', publicUrl);
 
-      // Now analyze the meal with the original image data
+      // Analyze the meal
       const analysis = await analyzeMeal(imageData);
-      
-      // Save meal to database with the public URL
+      console.log('Meal analysis:', analysis);
+
+      // Save to database
       const { error: insertError } = await supabase
         .from('meals')
-        .insert([
-          {
-            image_url: publicUrl,
-            ...analysis,
-          }
-        ]);
+        .insert([{
+          image_url: publicUrl,
+          calories: analysis.calories,
+          protein: analysis.protein,
+          name: analysis.name,
+          description: analysis.description,
+        }]);
 
       if (insertError) throw insertError;
 
+      // Fetch updated meals
       await fetchMeals();
 
       toast({
