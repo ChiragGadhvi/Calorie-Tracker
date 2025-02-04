@@ -201,53 +201,56 @@ const Index = () => {
   const totalProtein = todaysMeals.reduce((sum, meal) => sum + meal.protein, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-md mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Meal Tracker</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Meal Tracker</h1>
           <div className="flex gap-2">
             <Link to="/history">
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="bg-white">
                 <History className="h-4 w-4" />
               </Button>
             </Link>
             <Link to="/goals">
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="bg-white">
                 <Target className="h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-2">Today's Summary</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-primary/10 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Calories</p>
-              <p className="text-xl font-bold text-primary">{totalCalories}</p>
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
+          <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900">Today's Calories</h2>
+            <div className="flex items-center">
+              <div className="text-3xl font-bold text-primary">{totalCalories}</div>
+              <span className="ml-2 text-gray-500">kcal</span>
             </div>
-            <div className="bg-secondary/10 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Protein</p>
-              <p className="text-xl font-bold text-secondary">{totalProtein}g</p>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900">Today's Protein</h2>
+            <div className="flex items-center">
+              <div className="text-3xl font-bold text-secondary">{totalProtein}</div>
+              <span className="ml-2 text-gray-500">g</span>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-4 mb-8">
           <Button
             onClick={() => setShowCamera(true)}
-            className="flex-1"
+            className="flex-1 h-12"
             disabled={isAnalyzing}
           >
-            <Plus className="mr-2 h-4 w-4" /> Take Photo
+            <Plus className="mr-2 h-5 w-5" /> Take Photo
           </Button>
           <Button
             onClick={() => fileInputRef.current?.click()}
             variant="secondary"
-            className="flex-1"
+            className="flex-1 h-12"
             disabled={isAnalyzing}
           >
-            <Upload className="mr-2 h-4 w-4" /> Upload
+            <Upload className="mr-2 h-5 w-5" /> Upload
           </Button>
           <input
             type="file"
@@ -258,20 +261,27 @@ const Index = () => {
           />
         </div>
 
-        <div className="space-y-4">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
           {todaysMeals.map((meal) => (
             <MealCard 
-              key={meal.id} 
-              {...meal} 
+              key={meal.id}
+              id={meal.id}
               image={meal.image_url}
+              calories={meal.calories}
+              protein={meal.protein}
+              name={meal.name}
+              description={meal.description}
               timestamp={new Date(meal.created_at)}
-              onDelete={() => handleDeleteMeal(meal.id)} 
+              onDelete={() => handleDeleteMeal(meal.id)}
+              onUpdate={fetchMeals}
             />
           ))}
           {todaysMeals.length === 0 && (
-            <p className="text-center text-gray-500 py-8">
-              No meals logged today. Click "Take Photo" or "Upload" to get started!
-            </p>
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500">
+                No meals logged today. Click "Take Photo" or "Upload" to get started!
+              </p>
+            </div>
           )}
         </div>
       </div>
