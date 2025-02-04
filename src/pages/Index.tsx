@@ -79,6 +79,17 @@ const Index = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleDeleteMeal = (mealId: string) => {
+    const updatedMeals = meals.filter(meal => meal.id !== mealId);
+    setMeals(updatedMeals);
+    localStorage.setItem('meals', JSON.stringify(updatedMeals));
+    
+    toast({
+      title: "Meal deleted",
+      description: "The meal has been removed from your history.",
+    });
+  };
+
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
     const mealDate = new Date(meal.timestamp);
@@ -150,7 +161,7 @@ const Index = () => {
 
         <div className="space-y-4">
           {todaysMeals.map((meal) => (
-            <MealCard key={meal.id} {...meal} />
+            <MealCard key={meal.id} {...meal} onDelete={() => handleDeleteMeal(meal.id)} />
           ))}
           {todaysMeals.length === 0 && (
             <p className="text-center text-gray-500 py-8">

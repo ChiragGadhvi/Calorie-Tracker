@@ -1,5 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface MealCardProps {
@@ -8,9 +11,10 @@ interface MealCardProps {
   protein: number;
   name: string;
   timestamp: Date;
+  onDelete?: () => void;
 }
 
-const MealCard = ({ image, calories, protein, name, timestamp }: MealCardProps) => {
+const MealCard = ({ image, calories, protein, name, timestamp, onDelete }: MealCardProps) => {
   return (
     <Card className="w-full animate-fadeIn">
       <CardHeader className="p-4">
@@ -23,14 +27,26 @@ const MealCard = ({ image, calories, protein, name, timestamp }: MealCardProps) 
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        <h3 className="font-semibold text-lg mb-2">{name}</h3>
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-semibold text-lg">{name}</h3>
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onDelete}
+              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
         <div className="flex justify-between text-sm text-gray-600">
           <div>
             <p className="font-medium">{calories} calories</p>
             <p>{protein}g protein</p>
           </div>
           <div className="text-right">
-            <p>{formatDistanceToNow(timestamp, { addSuffix: true })}</p>
+            <p>{formatDistanceToNow(new Date(timestamp), { addSuffix: true })}</p>
           </div>
         </div>
       </CardContent>
