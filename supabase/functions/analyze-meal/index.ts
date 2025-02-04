@@ -1,5 +1,5 @@
 
-import { serve } from 'https://deno.fresh.run/std@0.204.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.204.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
 import { OpenAI } from 'https://deno.land/x/openai@v4.20.1/mod.ts'
 
@@ -26,7 +26,7 @@ serve(async (req) => {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",
       messages: [
         {
           role: "user",
