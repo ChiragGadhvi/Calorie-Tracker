@@ -16,11 +16,21 @@ serve(async (req) => {
   }
 
   try {
-    const { image } = await req.json()
+    const requestData = await req.json()
+    console.log('Received request data:', typeof requestData)
 
-    if (!image) {
+    if (!requestData || typeof requestData !== 'object') {
       return new Response(
-        JSON.stringify({ error: 'No image provided' }),
+        JSON.stringify({ error: 'Invalid request format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const { image } = requestData
+
+    if (!image || typeof image !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'No image provided or invalid image format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -52,7 +62,18 @@ serve(async (req) => {
     console.log('OpenAI API response received')
 
     const response = completion.choices[0].message.content
-    let analysis = JSON.parse(response || '{}')
+    if (!response) {
+      throw new Error('No response from OpenAI')
+    }
+
+    let analysis
+    try {
+      analysis = JSON.parse(response)
+    } catch (error) {
+      console.error('Error parsing OpenAI response:', error)
+      console.log('Raw response:', response)
+      throw new Error('Failed to parse OpenAI response')
+    }
 
     // Ensure all required fields are present and convert to numbers
     analysis = {
