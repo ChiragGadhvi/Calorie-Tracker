@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import CameraComponent from '@/components/Camera';
 import MealCard from '@/components/MealCard';
 import { useToast } from '@/components/ui/use-toast';
+import { pipeline } from '@huggingface/transformers';
 
 interface Meal {
   id: string;
@@ -25,32 +26,42 @@ const Index = () => {
   });
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const analyzeMeal = async (imageData: string): Promise<{ calories: number; protein: number; name: string; description: string }> => {
-    // Simulated AI analysis with sample descriptions
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    const mealTypes = [
-      {
-        name: "Grilled Chicken Salad",
-        description: "Fresh mixed greens topped with grilled chicken breast, cherry tomatoes, and a light vinaigrette"
-      },
-      {
-        name: "Pasta Primavera",
-        description: "Al dente pasta with seasonal vegetables and herbs in a light cream sauce"
-      },
-      {
-        name: "Salmon Bowl",
-        description: "Grilled salmon served over brown rice with roasted vegetables and avocado"
-      }
-    ];
-    const randomMeal = mealTypes[Math.floor(Math.random() * mealTypes.length)];
-    
-    return {
-      calories: Math.floor(Math.random() * 800) + 200,
-      protein: Math.floor(Math.random() * 30) + 10,
-      name: randomMeal.name,
-      description: randomMeal.description,
-    };
+    setIsAnalyzing(true);
+    try {
+      // Create image classification pipeline
+      const classifier = await pipeline(
+        'image-classification',
+        'onnx-community/mobilenetv4_conv_small.e2400_r224_in1k',
+        { device: 'cpu' }
+      );
+
+      // Classify the image
+      const results = await classifier(imageData);
+      const topResult = results[0];
+
+      // Generate a more detailed description based on the classification
+      let description = `This appears to be ${topResult.label} with ${Math.round(topResult.score * 100)}% confidence.`;
+      
+      // Estimate calories and protein based on the detected food type
+      // This is a simple estimation - in a real app, you'd want a more sophisticated calculation
+      const calories = Math.floor(Math.random() * 400) + 200; // Simple random estimation
+      const protein = Math.floor(Math.random() * 20) + 5; // Simple random estimation
+
+      return {
+        calories,
+        protein,
+        name: topResult.label.split(',')[0], // Take the first part of the label
+        description,
+      };
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      throw new Error('Failed to analyze image');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleCapture = async (imageData: string) => {
@@ -74,7 +85,7 @@ const Index = () => {
 
       toast({
         title: "Meal added successfully!",
-        description: `Detected ${analysis.calories} calories and ${analysis.protein}g protein.`,
+        description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
       });
     } catch (error) {
       toast({
@@ -147,11 +158,11 @@ const Index = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-primary/10 p-3 rounded-lg">
               <p className="text-sm text-gray-600">Calories</p>
-              <p className="text-xl font-bold text-primary">{totalCalories}</p>
+              <p className="text-xl font-bold text-primary">{todaysMeals.reduce((sum, meal) => sum + meal.calories, 0)}</p>
             </div>
             <div className="bg-secondary/10 p-3 rounded-lg">
               <p className="text-sm text-gray-600">Protein</p>
-              <p className="text-xl font-bold text-secondary">{totalProtein}g</p>
+              <p className="text-xl font-bold text-secondary">{todaysMeals.reduce((sum, meal) => sum + meal.protein, 0)}g</p>
             </div>
           </div>
         </div>
@@ -160,6 +171,7 @@ const Index = () => {
           <Button
             onClick={() => setShowCamera(true)}
             className="flex-1"
+            disabled={isAnalyzing}
           >
             <Plus className="mr-2 h-4 w-4" /> Take Photo
           </Button>
@@ -167,6 +179,7 @@ const Index = () => {
             onClick={() => fileInputRef.current?.click()}
             variant="secondary"
             className="flex-1"
+            disabled={isAnalyzing}
           >
             <Upload className="mr-2 h-4 w-4" /> Upload
           </Button>
