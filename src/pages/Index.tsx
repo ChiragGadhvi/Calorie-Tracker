@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, History, Target } from 'lucide-react';
+import { Plus, History, Target, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CameraComponent from '@/components/Camera';
 import MealCard from '@/components/MealCard';
@@ -22,15 +22,14 @@ const Index = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Simulated AI analysis - in reality, you'd want to use a proper AI service
   const analyzeMeal = async (imageData: string): Promise<{ calories: number; protein: number; name: string }> => {
-    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     return {
       calories: Math.floor(Math.random() * 800) + 200,
       protein: Math.floor(Math.random() * 30) + 10,
-      name: "Detected Meal", // In reality, this would come from AI
+      name: "Detected Meal",
     };
   };
 
@@ -66,6 +65,18 @@ const Index = () => {
     }
 
     setShowCamera(false);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const imageData = e.target?.result as string;
+      await handleCapture(imageData);
+    };
+    reader.readAsDataURL(file);
   };
 
   const todaysMeals = meals.filter(meal => {
@@ -114,12 +125,28 @@ const Index = () => {
           </div>
         </div>
 
-        <Button
-          onClick={() => setShowCamera(true)}
-          className="w-full mb-6"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add Meal
-        </Button>
+        <div className="flex gap-2 mb-6">
+          <Button
+            onClick={() => setShowCamera(true)}
+            className="flex-1"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Take Photo
+          </Button>
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            variant="secondary"
+            className="flex-1"
+          >
+            <Upload className="mr-2 h-4 w-4" /> Upload
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </div>
 
         <div className="space-y-4">
           {todaysMeals.map((meal) => (
@@ -127,7 +154,7 @@ const Index = () => {
           ))}
           {todaysMeals.length === 0 && (
             <p className="text-center text-gray-500 py-8">
-              No meals logged today. Click "Add Meal" to get started!
+              No meals logged today. Click "Take Photo" or "Upload" to get started!
             </p>
           )}
         </div>
