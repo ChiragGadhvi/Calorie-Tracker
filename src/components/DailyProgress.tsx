@@ -1,5 +1,5 @@
 import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Flame, Beef } from 'lucide-react';
 
 interface DailyProgressProps {
@@ -12,7 +12,7 @@ interface DailyProgressProps {
 const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }: DailyProgressProps) => {
   return (
     <div className="grid gap-6 md:grid-cols-2 mb-8">
-      <Card className="bg-white/50 backdrop-blur-sm border border-purple-100 shadow-lg hover:shadow-xl transition-all">
+      <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all">
         <CardContent className="pt-6">
           <div className="flex justify-between items-start mb-4">
             <div>
@@ -28,7 +28,7 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
         </CardContent>
       </Card>
 
-      <Card className="bg-white/50 backdrop-blur-sm border border-purple-100 shadow-lg hover:shadow-xl transition-all">
+      <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all">
         <CardContent className="pt-6">
           <div className="flex justify-between items-start mb-4">
             <div>

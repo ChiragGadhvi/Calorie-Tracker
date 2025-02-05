@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,7 @@ const MealCard = ({
   onUpdate 
 }: MealCardProps) => {
   return (
-    <Card className="w-full animate-fadeIn overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="w-full animate-fadeIn overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200">
       <div className="relative w-full aspect-[4/3] overflow-hidden">
         <img
           src={image}

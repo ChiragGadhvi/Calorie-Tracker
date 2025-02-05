@@ -19,7 +19,7 @@ interface MealListProps {
 
 const MealList = ({ meals, onDeleteMeal, onUpdateMeal }: MealListProps) => {
   return (
-    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-purple-100">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
       <h2 className="text-xl font-semibold mb-6 text-gray-900">Today's Meals</h2>
       <div className="grid gap-6 sm:grid-cols-2">
         {meals.map((meal) => (

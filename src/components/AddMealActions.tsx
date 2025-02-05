@@ -13,7 +13,7 @@ const AddMealActions = ({ onCameraClick, onUploadClick, isAnalyzing }: AddMealAc
     <div className="flex gap-4 mb-8">
       <Button
         onClick={onCameraClick}
-        className="flex-1 h-12 bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-300"
+        className="flex-1 h-12 bg-primary text-white hover:bg-primary/90 transition-all duration-300"
         disabled={isAnalyzing}
       >
         <Camera className="mr-2 h-5 w-5" /> Take Photo
@@ -21,7 +21,7 @@ const AddMealActions = ({ onCameraClick, onUploadClick, isAnalyzing }: AddMealAc
       <Button
         onClick={onUploadClick}
         variant="outline"
-        className="flex-1 h-12 bg-white/50 backdrop-blur-sm border border-purple-100 hover:bg-white/80 transition-all duration-300"
+        className="flex-1 h-12 bg-white border-gray-200 hover:bg-gray-50 transition-all duration-300"
         disabled={isAnalyzing}
       >
         <Upload className="mr-2 h-5 w-5" /> Upload
