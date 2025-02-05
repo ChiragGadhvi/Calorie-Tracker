@@ -48,9 +48,9 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">
+    <div className="w-full px-4 py-6">
+      <div className="w-full max-w-md mx-auto">
+        <h2 className="text-xl sm:text-2xl font-bold text-center mb-6">
           {isSignUp ? 'Create an Account' : 'Welcome Back'}
         </h2>
         <form onSubmit={handleAuth} className="space-y-4">
@@ -65,6 +65,7 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter your email"
+              className="w-full"
             />
           </div>
           <div>
@@ -78,6 +79,7 @@ const Auth = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
+              className="w-full"
             />
           </div>
           <Button className="w-full" type="submit" disabled={isLoading}>
@@ -87,7 +89,7 @@ const Auth = () => {
         <div className="mt-4 text-center">
           <button
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-primary hover:underline"
+            className="text-sm text-gray-900 hover:underline"
           >
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>

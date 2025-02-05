@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import DailyProgress from '@/components/DailyProgress';
 import AddMealActions from '@/components/AddMealActions';
 import MealList from '@/components/MealList';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Meal {
   id: string;
@@ -26,6 +27,7 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchMeals();
@@ -204,62 +206,81 @@ const Index = () => {
   const proteinGoal = 150;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+        {/* Header Section - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Daily Nutrition</h1>
-            <p className="text-gray-500">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Daily Nutrition</h1>
+            <p className="text-sm sm:text-base text-gray-500">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto justify-end">
             <Link to="/history">
-              <Button variant="outline" size="icon" className="bg-white/50 backdrop-blur-sm border border-purple-100 hover:bg-white/80">
+              <Button 
+                variant="outline" 
+                size={isMobile ? "sm" : "icon"} 
+                className="bg-white/50 backdrop-blur-sm border border-gray-200 hover:bg-white/80"
+              >
                 <History className="h-4 w-4" />
+                {isMobile && <span className="ml-2">History</span>}
               </Button>
             </Link>
             <Link to="/goals">
-              <Button variant="outline" size="icon" className="bg-white/50 backdrop-blur-sm border border-purple-100 hover:bg-white/80">
+              <Button 
+                variant="outline" 
+                size={isMobile ? "sm" : "icon"} 
+                className="bg-white/50 backdrop-blur-sm border border-gray-200 hover:bg-white/80"
+              >
                 <Target className="h-4 w-4" />
+                {isMobile && <span className="ml-2">Goals</span>}
               </Button>
             </Link>
             <Button
               variant="outline"
-              size="icon"
-              className="bg-white/50 backdrop-blur-sm border border-purple-100 hover:bg-white/80"
+              size={isMobile ? "sm" : "icon"}
+              className="bg-white/50 backdrop-blur-sm border border-gray-200 hover:bg-white/80"
               onClick={handleSignOut}
             >
               <LogOut className="h-4 w-4" />
+              {isMobile && <span className="ml-2">Sign Out</span>}
             </Button>
           </div>
         </div>
 
-        <DailyProgress
-          totalCalories={totalCalories}
-          totalProtein={totalProtein}
-          calorieGoal={calorieGoal}
-          proteinGoal={proteinGoal}
-        />
+        <div className="space-y-6">
+          <DailyProgress
+            totalCalories={totalCalories}
+            totalProtein={totalProtein}
+            calorieGoal={calorieGoal}
+            proteinGoal={proteinGoal}
+          />
 
-        <AddMealActions
-          onCameraClick={() => setShowCamera(true)}
-          onUploadClick={() => fileInputRef.current?.click()}
-          isAnalyzing={isAnalyzing}
-        />
+          <AddMealActions
+            onCameraClick={() => setShowCamera(true)}
+            onUploadClick={() => fileInputRef.current?.click()}
+            isAnalyzing={isAnalyzing}
+          />
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept="image/*"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
 
-        <MealList
-          meals={todaysMeals}
-          onDeleteMeal={handleDeleteMeal}
-          onUpdateMeal={fetchMeals}
-        />
+          <MealList
+            meals={todaysMeals}
+            onDeleteMeal={handleDeleteMeal}
+            onUpdateMeal={fetchMeals}
+          />
+        </div>
       </div>
 
       {showCamera && (
