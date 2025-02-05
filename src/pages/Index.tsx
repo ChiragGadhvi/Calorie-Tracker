@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { History, Target, LogOut } from 'lucide-react';
+import { History, Target, Camera, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import CameraComponent from '@/components/Camera';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +29,15 @@ const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
 
   useEffect(() => {
     fetchMeals();
@@ -206,53 +216,34 @@ const Index = () => {
   const proteinGoal = 150;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
-        {/* Header Section - Mobile Optimized */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Daily Nutrition</h1>
-            <p className="text-sm sm:text-base text-gray-500">
-              {new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
+      {/* Top Bar */}
+      <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {user?.email?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-left">
+              <p className="text-sm font-medium">Hello,</p>
+              <p className="text-xs text-gray-600">{user?.email?.split('@')[0]}</p>
+            </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto justify-end">
-            <Link to="/history">
-              <Button 
-                variant="outline" 
-                size={isMobile ? "sm" : "icon"} 
-                className="bg-white/50 backdrop-blur-sm border border-gray-200 hover:bg-white/80"
-              >
-                <History className="h-4 w-4" />
-                {isMobile && <span className="ml-2">History</span>}
-              </Button>
-            </Link>
-            <Link to="/goals">
-              <Button 
-                variant="outline" 
-                size={isMobile ? "sm" : "icon"} 
-                className="bg-white/50 backdrop-blur-sm border border-gray-200 hover:bg-white/80"
-              >
-                <Target className="h-4 w-4" />
-                {isMobile && <span className="ml-2">Goals</span>}
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              size={isMobile ? "sm" : "icon"}
-              className="bg-white/50 backdrop-blur-sm border border-gray-200 hover:bg-white/80"
-              onClick={handleSignOut}
-            >
-              <LogOut className="h-4 w-4" />
-              {isMobile && <span className="ml-2">Sign Out</span>}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
+      </div>
 
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 pt-16 pb-4">
         <div className="space-y-6">
           <DailyProgress
             totalCalories={totalCalories}
@@ -280,6 +271,33 @@ const Index = () => {
             onDeleteMeal={handleDeleteMeal}
             onUpdateMeal={fetchMeals}
           />
+        </div>
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex justify-around py-2">
+            <Link to="/" className="flex flex-col items-center p-2">
+              <User className="h-5 w-5 text-primary" />
+              <span className="text-xs mt-1">Profile</span>
+            </Link>
+            <Link to="/goals" className="flex flex-col items-center p-2">
+              <Target className="h-5 w-5 text-gray-600" />
+              <span className="text-xs mt-1">Goals</span>
+            </Link>
+            <button
+              onClick={() => setShowCamera(true)}
+              className="flex flex-col items-center p-2"
+            >
+              <Camera className="h-5 w-5 text-gray-600" />
+              <span className="text-xs mt-1">Scan</span>
+            </button>
+            <Link to="/history" className="flex flex-col items-center p-2">
+              <History className="h-5 w-5 text-gray-600" />
+              <span className="text-xs mt-1">History</span>
+            </Link>
+          </div>
         </div>
       </div>
 
