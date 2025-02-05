@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { History, Target, Camera, LogOut, User } from 'lucide-react';
+import { History, Target, Camera, LogOut, User, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import CameraComponent from '@/components/Camera';
@@ -279,8 +279,8 @@ const Index = () => {
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex justify-around py-2">
             <Link to="/" className="flex flex-col items-center p-2">
-              <User className="h-5 w-5 text-primary" />
-              <span className="text-xs mt-1">Profile</span>
+              <Home className="h-5 w-5 text-primary" />
+              <span className="text-xs mt-1">Home</span>
             </Link>
             <Link to="/goals" className="flex flex-col items-center p-2">
               <Target className="h-5 w-5 text-gray-600" />
@@ -296,6 +296,10 @@ const Index = () => {
             <Link to="/history" className="flex flex-col items-center p-2">
               <History className="h-5 w-5 text-gray-600" />
               <span className="text-xs mt-1">History</span>
+            </Link>
+            <Link to="/profile" className="flex flex-col items-center p-2">
+              <User className="h-5 w-5 text-gray-600" />
+              <span className="text-xs mt-1">Profile</span>
             </Link>
           </div>
         </div>
