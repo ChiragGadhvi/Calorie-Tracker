@@ -1,7 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, History, Target, Upload } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, History, Target, Upload, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CameraComponent from '@/components/Camera';
 import MealCard from '@/components/MealCard';
@@ -24,6 +23,7 @@ const Index = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMeals();
@@ -187,6 +187,19 @@ const Index = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      navigate('/');
+    }
+  };
+
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
     const mealDate = new Date(meal.created_at);
@@ -216,6 +229,14 @@ const Index = () => {
                 <Target className="h-4 w-4" />
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              size="icon"
+              className="bg-white"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
