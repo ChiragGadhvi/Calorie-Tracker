@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, History, Target, Upload, LogOut } from 'lucide-react';
+import { Plus, History, Target, LogOut, Camera, Upload, MoreVertical, Flame, Apple, Beef } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import CameraComponent from '@/components/Camera';
 import MealCard from '@/components/MealCard';
 import { useToast } from '@/components/ui/use-toast';
@@ -212,12 +213,18 @@ const Index = () => {
 
   const totalCalories = todaysMeals.reduce((sum, meal) => sum + meal.calories, 0);
   const totalProtein = todaysMeals.reduce((sum, meal) => sum + meal.protein, 0);
+  const calorieGoal = 2000; // We can make this configurable later
+  const proteinGoal = 150; // We can make this configurable later
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Meal Tracker</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Daily Nutrition</h1>
+            <p className="text-gray-500">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+          </div>
           <div className="flex gap-2">
             <Link to="/history">
               <Button variant="outline" size="icon" className="bg-white">
@@ -240,35 +247,50 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Progress Cards */}
         <div className="grid gap-6 md:grid-cols-2 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900">Today's Calories</h2>
-            <div className="flex items-center">
-              <div className="text-3xl font-bold text-primary">{totalCalories}</div>
-              <span className="ml-2 text-gray-500">kcal</span>
+          <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Calories</h2>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-primary">{totalCalories}</span>
+                  <span className="text-gray-500 ml-2">/ {calorieGoal} kcal</span>
+                </div>
+              </div>
+              <Flame className="h-6 w-6 text-primary" />
             </div>
+            <Progress value={(totalCalories / calorieGoal) * 100} className="h-2" />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900">Today's Protein</h2>
-            <div className="flex items-center">
-              <div className="text-3xl font-bold text-secondary">{totalProtein}</div>
-              <span className="ml-2 text-gray-500">g</span>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Protein</h2>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-secondary">{totalProtein}</span>
+                  <span className="text-gray-500 ml-2">/ {proteinGoal}g</span>
+                </div>
+              </div>
+              <Beef className="h-6 w-6 text-secondary" />
             </div>
+            <Progress value={(totalProtein / proteinGoal) * 100} className="h-2" />
           </div>
         </div>
 
+        {/* Add Meal Buttons */}
         <div className="flex gap-4 mb-8">
           <Button
             onClick={() => setShowCamera(true)}
-            className="flex-1 h-12"
+            className="flex-1 h-12 bg-primary hover:bg-primary/90"
             disabled={isAnalyzing}
           >
-            <Plus className="mr-2 h-5 w-5" /> Take Photo
+            <Camera className="mr-2 h-5 w-5" /> Take Photo
           </Button>
           <Button
             onClick={() => fileInputRef.current?.click()}
-            variant="secondary"
-            className="flex-1 h-12"
+            variant="outline"
+            className="flex-1 h-12 bg-white"
             disabled={isAnalyzing}
           >
             <Upload className="mr-2 h-5 w-5" /> Upload
@@ -282,28 +304,32 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
-          {todaysMeals.map((meal) => (
-            <MealCard 
-              key={meal.id}
-              id={meal.id}
-              image={meal.image_url}
-              calories={meal.calories}
-              protein={meal.protein}
-              name={meal.name}
-              description={meal.description}
-              timestamp={new Date(meal.created_at)}
-              onDelete={() => handleDeleteMeal(meal.id)}
-              onUpdate={fetchMeals}
-            />
-          ))}
-          {todaysMeals.length === 0 && (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-500">
-                No meals logged today. Click "Take Photo" or "Upload" to get started!
-              </p>
-            </div>
-          )}
+        {/* Today's Meals */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-6">Today's Meals</h2>
+          <div className="grid gap-6 sm:grid-cols-2">
+            {todaysMeals.map((meal) => (
+              <MealCard 
+                key={meal.id}
+                id={meal.id}
+                image={meal.image_url}
+                calories={meal.calories}
+                protein={meal.protein}
+                name={meal.name}
+                description={meal.description}
+                timestamp={new Date(meal.created_at)}
+                onDelete={() => handleDeleteMeal(meal.id)}
+                onUpdate={fetchMeals}
+              />
+            ))}
+            {todaysMeals.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500">
+                  No meals logged today. Click "Take Photo" or "Upload" to get started!
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
