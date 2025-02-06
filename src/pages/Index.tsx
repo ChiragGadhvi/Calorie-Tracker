@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import DailyProgress from '@/components/DailyProgress';
@@ -26,11 +26,15 @@ const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      if (user?.user_metadata?.avatar_url) {
+        setAvatarUrl(user.user_metadata.avatar_url);
+      }
     };
     getUser();
   }, []);
@@ -89,14 +93,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
-      {/* Top Bar */}
       <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary/10 text-primary">
-                {user?.email?.charAt(0).toUpperCase()}
-              </AvatarFallback>
+              {avatarUrl ? (
+                <AvatarImage src={avatarUrl} alt="Profile" />
+              ) : (
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {user?.email?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className="text-left">
               <p className="text-sm font-medium">Hello,</p>
@@ -114,7 +121,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 pt-16 pb-4">
         <div className="space-y-6">
           <DailyProgress
