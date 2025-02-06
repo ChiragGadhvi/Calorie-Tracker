@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MealCard from '@/components/MealCard';
+import Navigation from '@/components/Navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -70,8 +71,8 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="max-w-md mx-auto p-4">
         <div className="flex items-center mb-6">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -98,6 +99,7 @@ const History = () => {
           )}
         </div>
       </div>
+      <Navigation />
     </div>
   );
 };

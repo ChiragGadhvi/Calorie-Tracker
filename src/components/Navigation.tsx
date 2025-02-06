@@ -7,7 +7,7 @@ const Navigation = () => {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    return location.pathname === path ? "text-primary" : "text-gray-600";
+    return location.pathname === path ? "text-primary ring-2 ring-primary rounded-full" : "text-gray-600";
   };
 
   return (
@@ -15,23 +15,33 @@ const Navigation = () => {
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex justify-around py-2">
           <Link to="/" className="flex flex-col items-center p-2">
-            <Home className={`h-5 w-5 ${isActive('/')}`} />
+            <div className={`p-2 ${isActive('/')}`}>
+              <Home className="h-5 w-5" />
+            </div>
             <span className="text-xs mt-1">Home</span>
           </Link>
           <Link to="/goals" className="flex flex-col items-center p-2">
-            <Target className={`h-5 w-5 ${isActive('/goals')}`} />
+            <div className={`p-2 ${isActive('/goals')}`}>
+              <Target className="h-5 w-5" />
+            </div>
             <span className="text-xs mt-1">Goals</span>
           </Link>
           <Link to="/scan" className="flex flex-col items-center p-2">
-            <Camera className={`h-5 w-5 ${isActive('/scan')}`} />
+            <div className={`p-2 ${isActive('/scan')}`}>
+              <Camera className="h-5 w-5" />
+            </div>
             <span className="text-xs mt-1">Scan</span>
           </Link>
           <Link to="/history" className="flex flex-col items-center p-2">
-            <History className={`h-5 w-5 ${isActive('/history')}`} />
+            <div className={`p-2 ${isActive('/history')}`}>
+              <History className="h-5 w-5" />
+            </div>
             <span className="text-xs mt-1">History</span>
           </Link>
           <Link to="/profile" className="flex flex-col items-center p-2">
-            <User className={`h-5 w-5 ${isActive('/profile')}`} />
+            <div className={`p-2 ${isActive('/profile')}`}>
+              <User className="h-5 w-5" />
+            </div>
             <span className="text-xs mt-1">Profile</span>
           </Link>
         </div>

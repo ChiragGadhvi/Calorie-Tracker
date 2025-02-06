@@ -1,5 +1,6 @@
+
 import React, { useRef, useState } from 'react';
-import { Camera, XCircle } from 'lucide-react';
+import { Camera as CameraIcon, XCircle, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +11,7 @@ interface CameraComponentProps {
 
 const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -44,6 +46,18 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
     }
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageData = e.target?.result as string;
+      onCapture(imageData);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const stopCamera = () => {
     if (videoRef.current?.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
@@ -60,46 +74,61 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-4 relative animate-fadeIn">
+    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+      <div className="relative flex-1">
+        {error ? (
+          <div className="h-full flex items-center justify-center text-white p-4 text-center">
+            {error}
+          </div>
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className={cn(
+              "w-full h-full object-cover",
+              !isStreaming && "hidden"
+            )}
+          />
+        )}
+        
         <button
           onClick={() => {
             stopCamera();
             onClose();
           }}
-          className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
+          className="absolute right-4 top-4 text-white hover:text-gray-200"
         >
-          <XCircle className="h-6 w-6" />
+          <XCircle className="h-8 w-8" />
         </button>
-        
-        <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
-          {error ? (
-            <div className="h-full flex items-center justify-center text-red-500 p-4 text-center">
-              {error}
-            </div>
-          ) : (
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className={cn(
-                "w-full h-full object-cover",
-                !isStreaming && "hidden"
-              )}
-            />
-          )}
-        </div>
+      </div>
 
-        <div className="flex justify-center">
-          <Button
-            onClick={takePhoto}
-            className="bg-primary hover:bg-primary/90"
-            disabled={!isStreaming}
-          >
-            <Camera className="mr-2 h-4 w-4" />
-            Take Photo
-          </Button>
-        </div>
+      <div className="bg-black p-6 flex justify-center gap-4">
+        <Button
+          onClick={() => fileInputRef.current?.click()}
+          variant="secondary"
+          className="bg-white/10 hover:bg-white/20 text-white"
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          Upload
+        </Button>
+
+        <Button
+          onClick={takePhoto}
+          className="bg-white text-black hover:bg-white/90"
+          disabled={!isStreaming}
+        >
+          <CameraIcon className="mr-2 h-4 w-4" />
+          Take Photo
+        </Button>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
       </div>
     </div>
   );

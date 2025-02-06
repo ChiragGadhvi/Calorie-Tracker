@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GoalsForm from '@/components/GoalsForm';
+import Navigation from '@/components/Navigation';
 
 const Goals = () => {
   const handleSaveGoals = (calories: number, protein: number) => {
@@ -15,8 +17,8 @@ const Goals = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="max-w-md mx-auto p-4">
         <div className="flex items-center mb-6">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -32,6 +34,7 @@ const Goals = () => {
           currentProtein={currentGoals.protein}
         />
       </div>
+      <Navigation />
     </div>
   );
 };
