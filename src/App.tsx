@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
@@ -7,6 +8,8 @@ import Landing from '@/pages/Landing';
 import Auth from '@/pages/Auth';
 import Goals from '@/pages/Goals';
 import History from '@/pages/History';
+import Profile from '@/pages/Profile';
+import Scan from '@/pages/Scan';
 import NotFound from '@/pages/NotFound';
 
 function App() {
@@ -14,13 +17,11 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and set the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
 
-    // Listen for changes on auth state (sign in, sign out, etc.)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -49,6 +50,14 @@ function App() {
         <Route
           path="/history"
           element={session ? <History /> : <Navigate to="/auth" replace />}
+        />
+        <Route
+          path="/profile"
+          element={session ? <Profile /> : <Navigate to="/auth" replace />}
+        />
+        <Route
+          path="/scan"
+          element={session ? <Scan /> : <Navigate to="/auth" replace />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
