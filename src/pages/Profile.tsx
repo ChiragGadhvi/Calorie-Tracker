@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { LogOut, Settings, Upload, Mail, Calendar, Trophy, Activity } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { LogOut, Settings, Upload, Mail, Calendar, Trophy, Activity, Heart, Target, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import Navigation from '@/components/Navigation';
+import { Progress } from '@/components/ui/progress';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -53,7 +54,7 @@ const Profile = () => {
       setAvatarUrl(publicUrl);
       toast({
         title: "Success",
-        description: "Avatar updated successfully",
+        description: "Profile picture updated successfully",
       });
     } catch (error: any) {
       toast({
@@ -77,10 +78,11 @@ const Profile = () => {
     }
   };
 
+  // Example statistics
   const stats = [
-    { icon: Trophy, label: "Achievement Points", value: "2,500" },
-    { icon: Activity, label: "Active Days", value: "45" },
-    { icon: Calendar, label: "Member Since", value: "Feb 2024" },
+    { icon: Trophy, label: "Achievement Points", value: "2,500", progress: 75 },
+    { icon: Activity, label: "Active Days", value: "45", progress: 90 },
+    { icon: Heart, label: "Health Score", value: "85", progress: 85 },
   ];
 
   return (
@@ -115,41 +117,103 @@ const Profile = () => {
           </div>
           
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+            <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
             <div className="flex items-center justify-center gap-2 text-gray-600">
               <Mail className="h-4 w-4" />
               <p>{user?.email}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
-            {stats.map(({ icon: Icon, label, value }) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+            {stats.map(({ icon: Icon, label, value, progress }) => (
               <Card key={label} className="bg-white shadow-sm hover:shadow-md transition-all">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-full">
-                    <Icon className="h-5 w-5 text-primary" />
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-primary/10 rounded-full">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">{label}</p>
+                      <p className="text-lg font-semibold">{value}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">{label}</p>
-                    <p className="text-lg font-semibold">{value}</p>
-                  </div>
+                  <Progress value={progress} className="h-1" />
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <div className="w-full max-w-md space-y-4">
+          <div className="w-full space-y-4">
             <Card>
-              <CardContent className="p-6">
+              <CardHeader>
+                <CardTitle>Account Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={() => navigate('/goals')}
+                >
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    <span>Goals Settings</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    <span>Preferences</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Achievements</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
-                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/goals')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Goals Settings
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700" onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </Button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-yellow-100 rounded-full">
+                        <Trophy className="h-5 w-5 text-yellow-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">30-Day Streak</p>
+                        <p className="text-sm text-gray-600">Logged meals for 30 consecutive days</p>
+                      </div>
+                    </div>
+                    <Progress value={80} className="w-20 h-1" />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <Target className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Goal Crusher</p>
+                        <p className="text-sm text-gray-600">Hit protein goals 10 times</p>
+                      </div>
+                    </div>
+                    <Progress value={60} className="w-20 h-1" />
+                  </div>
                 </div>
               </CardContent>
             </Card>

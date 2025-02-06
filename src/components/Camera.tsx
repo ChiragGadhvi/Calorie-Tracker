@@ -40,8 +40,8 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0);
         const imageData = canvas.toDataURL('image/jpeg');
-        onCapture(imageData);
         stopCamera();
+        onCapture(imageData);
       }
     }
   };
@@ -110,7 +110,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
           className="bg-white/10 hover:bg-white/20 text-white"
         >
           <Upload className="mr-2 h-4 w-4" />
-          Upload
+          Upload Image
         </Button>
 
         <Button
