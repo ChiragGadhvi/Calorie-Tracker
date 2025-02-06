@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { LogOut, Settings, Upload } from 'lucide-react';
+import { LogOut, Settings, Upload, Mail, Calendar, Trophy, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -77,6 +77,12 @@ const Profile = () => {
     }
   };
 
+  const stats = [
+    { icon: Trophy, label: "Achievement Points", value: "2,500" },
+    { icon: Activity, label: "Active Days", value: "45" },
+    { icon: Calendar, label: "Member Since", value: "Feb 2024" },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
       <div className="max-w-4xl mx-auto px-4 pt-6">
@@ -110,7 +116,26 @@ const Profile = () => {
           
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-            <p className="text-gray-600">{user?.email}</p>
+            <div className="flex items-center justify-center gap-2 text-gray-600">
+              <Mail className="h-4 w-4" />
+              <p>{user?.email}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
+            {stats.map(({ icon: Icon, label, value }) => (
+              <Card key={label} className="bg-white shadow-sm hover:shadow-md transition-all">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">{label}</p>
+                    <p className="text-lg font-semibold">{value}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           <div className="w-full max-w-md space-y-4">

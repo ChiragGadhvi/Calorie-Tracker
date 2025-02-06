@@ -1,13 +1,15 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import DailyProgress from '@/components/DailyProgress';
 import Navigation from '@/components/Navigation';
+import { Card, CardContent } from '@/components/ui/card';
+import MealList from '@/components/MealList';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Meal {
@@ -27,6 +29,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [streak, setStreak] = useState(5); // Example streak count
 
   useEffect(() => {
     const getUser = async () => {
@@ -51,7 +54,6 @@ const Index = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      console.log('Fetched meals:', data);
       setMeals(data || []);
     } catch (error) {
       console.error('Error fetching meals:', error);
@@ -123,11 +125,74 @@ const Index = () => {
 
       <div className="max-w-4xl mx-auto px-4 pt-16 pb-4">
         <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Award className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Current Streak</p>
+                  <p className="text-lg font-semibold">{streak} days</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-full">
+                  <Utensils className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Today's Meals</p>
+                  <p className="text-lg font-semibold">{todaysMeals.length}</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Weekly Average</p>
+                  <p className="text-lg font-semibold">{Math.round(totalCalories / 7)} cal</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <DailyProgress
             totalCalories={totalCalories}
             totalProtein={totalProtein}
             calorieGoal={calorieGoal}
             proteinGoal={proteinGoal}
+          />
+
+          <MealList
+            meals={todaysMeals}
+            onDeleteMeal={async (id) => {
+              try {
+                const { error } = await supabase
+                  .from('meals')
+                  .delete()
+                  .eq('id', id);
+                
+                if (error) throw error;
+                
+                fetchMeals();
+                toast({
+                  title: "Meal deleted",
+                  description: "The meal has been removed from your history.",
+                });
+              } catch (error) {
+                toast({
+                  title: "Error deleting meal",
+                  description: "There was a problem deleting the meal.",
+                  variant: "destructive",
+                });
+              }
+            }}
+            onUpdateMeal={fetchMeals}
           />
         </div>
       </div>
