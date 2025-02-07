@@ -38,17 +38,13 @@ const Scan = () => {
   };
 
   const handleCapture = async (imageData: string) => {
-    toast({
-      title: "Analyzing meal...",
-      description: "Please wait while we process your image.",
-    });
-
     try {
       const timestamp = Date.now();
       const fileName = `${timestamp}.jpg`;
       const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
       const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
       
+      // Upload image first
       const { error: uploadError } = await supabase.storage
         .from('meal-images')
         .upload(fileName, binaryData, {
@@ -63,6 +59,16 @@ const Scan = () => {
         .getPublicUrl(fileName);
 
       const publicUrl = urlData.publicUrl;
+      
+      // Show analyzing toast and navigate to home
+      toast({
+        title: "Analyzing meal...",
+        description: "Please wait while we process your image.",
+      });
+      
+      navigate('/');
+
+      // Continue with analysis and database update
       const analysis = await analyzeMeal(imageData);
 
       const { error: insertError } = await supabase
@@ -81,8 +87,6 @@ const Scan = () => {
         title: "Meal added successfully!",
         description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
       });
-      
-      navigate('/');
     } catch (error) {
       console.error('Error:', error);
       toast({
