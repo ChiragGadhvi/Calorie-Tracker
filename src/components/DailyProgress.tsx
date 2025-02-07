@@ -19,16 +19,16 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Calories</h2>
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold text-[#F97316]">{totalCalories}</span>
+                <span className="text-3xl font-bold text-orange-500">{totalCalories}</span>
                 <span className="text-gray-500 ml-2">/ {calorieGoal} kcal</span>
               </div>
             </div>
-            <Flame className="h-6 w-6 text-[#F97316]" />
+            <Flame className="h-6 w-6 text-orange-500" />
           </div>
           <Progress 
             value={(totalCalories / calorieGoal) * 100} 
             className="h-2 bg-orange-100" 
-            indicatorClassName="bg-gradient-to-r from-orange-400 to-orange-500"
+            indicatorClassName="bg-orange-500"
           />
         </CardContent>
       </Card>
@@ -39,16 +39,16 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Protein</h2>
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold text-[#8B5CF6]">{totalProtein}</span>
+                <span className="text-3xl font-bold text-purple-500">{totalProtein}</span>
                 <span className="text-gray-500 ml-2">/ {proteinGoal}g</span>
               </div>
             </div>
-            <Beef className="h-6 w-6 text-[#8B5CF6]" />
+            <Beef className="h-6 w-6 text-purple-500" />
           </div>
           <Progress 
             value={(totalProtein / proteinGoal) * 100} 
             className="h-2 bg-purple-100" 
-            indicatorClassName="bg-gradient-to-r from-purple-400 to-purple-500"
+            indicatorClassName="bg-purple-500"
           />
         </CardContent>
       </Card>
