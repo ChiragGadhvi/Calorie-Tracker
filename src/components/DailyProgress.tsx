@@ -28,7 +28,6 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
           <Progress 
             value={(totalCalories / calorieGoal) * 100} 
             className="h-2 bg-orange-100" 
-            indicatorClassName="bg-gradient-to-r from-orange-400 to-orange-500"
           />
         </CardContent>
       </Card>
@@ -47,8 +46,7 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
           </div>
           <Progress 
             value={(totalProtein / proteinGoal) * 100} 
-            className="h-2 bg-purple-100" 
-            indicatorClassName="bg-gradient-to-r from-purple-400 to-purple-500"
+            className="h-2 bg-purple-100"
           />
         </CardContent>
       </Card>
