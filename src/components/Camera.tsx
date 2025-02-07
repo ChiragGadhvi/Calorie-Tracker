@@ -4,6 +4,7 @@ import { Camera as CameraIcon, XCircle, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
 
 interface CameraComponentProps {
   onCapture: (image: string) => void;
@@ -148,3 +149,4 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
 };
 
 export default CameraComponent;
+
