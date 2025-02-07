@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { History, Target, Camera, User, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CameraComponent from '@/components/Camera';
 
 const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showCamera, setShowCamera] = React.useState(false);
 
   const isActive = (path: string) => {
@@ -18,10 +19,13 @@ const Navigation = () => {
       {showCamera && (
         <CameraComponent
           onCapture={(imageData) => {
-            // This is now handled internally in the CameraComponent
             setShowCamera(false);
+            navigate('/');
           }}
-          onClose={() => setShowCamera(false)}
+          onClose={() => {
+            setShowCamera(false);
+            navigate('/');
+          }}
         />
       )}
       
