@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { History, Target, Camera, User, Home } from 'lucide-react';
@@ -17,9 +18,7 @@ const Navigation = () => {
       {showCamera && (
         <CameraComponent
           onCapture={(imageData) => {
-            // Handle image capture
-            const event = new CustomEvent('imageCaptured', { detail: imageData });
-            window.dispatchEvent(event);
+            // This is now handled internally in the CameraComponent
             setShowCamera(false);
           }}
           onClose={() => setShowCamera(false)}
