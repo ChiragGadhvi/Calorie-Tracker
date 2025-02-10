@@ -54,7 +54,9 @@ const Index = () => {
           schema: 'public',
           table: 'meals'
         },
-        () => {
+        (payload) => {
+          // Immediately update the meals list when we receive a change
+          console.log('Received real-time update:', payload);
           fetchMeals();
         }
       )
@@ -67,12 +69,14 @@ const Index = () => {
 
   const fetchMeals = async () => {
     try {
+      console.log('Fetching meals...');
       const { data, error } = await supabase
         .from('meals')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Fetched meals:', data);
       setMeals(data || []);
     } catch (error) {
       console.error('Error fetching meals:', error);
