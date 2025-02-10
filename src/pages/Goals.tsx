@@ -57,14 +57,14 @@ const Goals = () => {
                   <span className="text-sm font-medium">Calories</span>
                   <span className="text-sm text-gray-500">{caloriesProgress}%</span>
                 </div>
-                <Progress value={caloriesProgress} className="h-2" />
+                <Progress value={caloriesProgress} className="h-2 bg-[#F2FCE2] [&>div]:bg-green-500" />
               </div>
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Protein</span>
                   <span className="text-sm text-gray-500">{proteinProgress}%</span>
                 </div>
-                <Progress value={proteinProgress} className="h-2" />
+                <Progress value={proteinProgress} className="h-2 bg-[#F2FCE2] [&>div]:bg-green-600" />
               </div>
             </div>
           </CardContent>
