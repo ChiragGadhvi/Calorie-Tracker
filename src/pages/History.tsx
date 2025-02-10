@@ -20,17 +20,30 @@ interface Meal {
 
 const History = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchMeals();
+    // Get the current user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchMeals();
+    }
+  }, [user]);
 
   const fetchMeals = async () => {
     try {
       const { data, error } = await supabase
         .from('meals')
         .select('*')
+        .eq('user_id', user.id)  // Filter by current user's ID
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -50,7 +63,8 @@ const History = () => {
       const { error } = await supabase
         .from('meals')
         .delete()
-        .eq('id', mealId);
+        .eq('id', mealId)
+        .eq('user_id', user.id);  // Ensure user can only delete their own meals
 
       if (error) throw error;
 
