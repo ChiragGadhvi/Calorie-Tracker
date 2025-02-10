@@ -18,6 +18,7 @@ export type Database = {
           image_url: string
           name: string
           protein: number
+          user_id: string
         }
         Insert: {
           calories: number
@@ -27,6 +28,7 @@ export type Database = {
           image_url: string
           name: string
           protein: number
+          user_id?: string
         }
         Update: {
           calories?: number
@@ -36,6 +38,7 @@ export type Database = {
           image_url?: string
           name?: string
           protein?: number
+          user_id?: string
         }
         Relationships: []
       }

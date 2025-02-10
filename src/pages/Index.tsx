@@ -20,6 +20,7 @@ interface Meal {
   name: string;
   description: string;
   created_at: string;
+  user_id: string;
 }
 
 const Index = () => {
@@ -67,7 +68,7 @@ const Index = () => {
     // Initial fetch
     fetchMeals();
 
-    // Subscribe to real-time changes
+    // Subscribe to real-time changes for the current user's meals only
     const channel = supabase
       .channel('meal-updates')
       .on(
@@ -75,7 +76,8 @@ const Index = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'meals'
+          table: 'meals',
+          filter: `user_id=eq.${user?.id}`,
         },
         (payload) => {
           console.log('Received real-time update:', payload);
@@ -100,7 +102,7 @@ const Index = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user?.id]);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -240,3 +242,4 @@ const Index = () => {
 };
 
 export default Index;
+
