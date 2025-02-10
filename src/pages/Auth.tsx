@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,27 +20,44 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: window.location.origin,
+          },
         });
+
         if (error) throw error;
+
         toast({
-          title: "Check your email",
-          description: "We've sent you a verification link to complete your signup.",
+          title: "Success",
+          description: "Please check your email to confirm your registration.",
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+
+        if (error) {
+          if (error.message === 'Invalid login credentials') {
+            throw new Error('Invalid email or password. Please try again.');
+          }
+          throw error;
+        }
+
+        toast({
+          title: "Success",
+          description: "Successfully logged in!",
+        });
         navigate('/');
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during authentication",
         variant: "destructive",
       });
     } finally {
@@ -48,52 +66,63 @@ const Auth = () => {
   };
 
   return (
-    <div className="w-full px-4 py-6">
-      <div className="w-full max-w-md mx-auto">
-        <h2 className="text-xl sm:text-2xl font-bold text-center mb-6">
-          {isSignUp ? 'Create an Account' : 'Welcome Back'}
-        </h2>
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
-              className="w-full"
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            {isSignUp ? 'Create an Account' : 'Welcome Back'}
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            {isSignUp ? 'Sign up to get started' : 'Sign in to your account'}
+          </p>
+        </div>
+        <form onSubmit={handleAuth} className="mt-8 space-y-6">
+          <div className="rounded-md shadow-sm space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+                className="w-full mt-1"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+                className="w-full mt-1"
+                minLength={6}
+              />
+            </div>
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-              className="w-full"
-            />
-          </div>
+
           <Button className="w-full" type="submit" disabled={isLoading}>
             {isLoading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-primary hover:underline"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+            </button>
+          </div>
         </form>
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-gray-900 hover:underline"
-          >
-            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-          </button>
-        </div>
       </div>
     </div>
   );
