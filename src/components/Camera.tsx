@@ -41,6 +41,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
         ctx.drawImage(videoRef.current, 0, 0);
         const imageData = canvas.toDataURL('image/jpeg');
         stopCamera();
+        onClose();
         onCapture(imageData);
       }
     }
@@ -53,6 +54,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const imageData = e.target?.result as string;
+      onClose();
       onCapture(imageData);
     };
     reader.readAsDataURL(file);
