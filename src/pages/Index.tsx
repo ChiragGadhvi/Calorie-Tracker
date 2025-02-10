@@ -45,10 +45,11 @@ const Index = () => {
 
   const fetchMeals = async () => {
     try {
-      console.log('Fetching meals...');
+      console.log('Fetching meals for user:', user?.id);
       const { data, error } = await supabase
         .from('meals')
         .select('*')
+        .eq('user_id', user?.id)  // Filter by current user's ID
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -65,44 +66,46 @@ const Index = () => {
   };
 
   useEffect(() => {
-    // Initial fetch
-    fetchMeals();
+    if (user) {
+      // Only fetch meals when we have a user
+      fetchMeals();
 
-    // Subscribe to real-time changes for the current user's meals only
-    const channel = supabase
-      .channel('meal-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'meals',
-          filter: `user_id=eq.${user?.id}`,
-        },
-        (payload) => {
-          console.log('Received real-time update:', payload);
-          // Update the meals list immediately when we receive a change
-          if (payload.eventType === 'INSERT') {
-            const newMeal = payload.new as Meal;
-            setMeals(prevMeals => [newMeal, ...prevMeals]);
-          } else if (payload.eventType === 'DELETE') {
-            setMeals(prevMeals => prevMeals.filter(meal => meal.id !== payload.old.id));
-          } else if (payload.eventType === 'UPDATE') {
-            setMeals(prevMeals => 
-              prevMeals.map(meal => 
-                meal.id === payload.new.id ? payload.new as Meal : meal
-              )
-            );
+      // Subscribe to real-time changes for the current user's meals only
+      const channel = supabase
+        .channel('meal-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'meals',
+            filter: `user_id=eq.${user.id}`, // Filter realtime updates by user_id
+          },
+          (payload) => {
+            console.log('Received real-time update:', payload);
+            // Update the meals list immediately when we receive a change
+            if (payload.eventType === 'INSERT') {
+              const newMeal = payload.new as Meal;
+              setMeals(prevMeals => [newMeal, ...prevMeals]);
+            } else if (payload.eventType === 'DELETE') {
+              setMeals(prevMeals => prevMeals.filter(meal => meal.id !== payload.old.id));
+            } else if (payload.eventType === 'UPDATE') {
+              setMeals(prevMeals => 
+                prevMeals.map(meal => 
+                  meal.id === payload.new.id ? payload.new as Meal : meal
+                )
+              );
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
 
-    // Cleanup subscription on component unmount
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
+      // Cleanup subscription on component unmount
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user?.id]); // Depend on user.id instead of user to avoid unnecessary re-renders
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -242,4 +245,3 @@ const Index = () => {
 };
 
 export default Index;
-
