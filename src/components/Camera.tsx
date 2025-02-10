@@ -61,9 +61,6 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
       description: "Please wait while we process your image.",
     });
 
-    // Navigate immediately after showing the toast
-    navigate('/');
-
     try {
       const timestamp = Date.now();
       const fileName = `${timestamp}.jpg`;
@@ -102,6 +99,12 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
         title: "Meal added successfully!",
         description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
       });
+
+      setTimeout(() => {
+        stopCamera();
+        onClose();
+      }, 2000);
+
     } catch (error) {
       console.error('Error:', error);
       toast({
