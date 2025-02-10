@@ -41,9 +41,10 @@ const Scan = () => {
     setShowCamera(false); // Close camera immediately
     
     // Initial toast for analysis start
-    const analysisToast = toast({
+    toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
+      duration: 2000, // Show for 2 seconds
     });
 
     try {
@@ -56,6 +57,7 @@ const Scan = () => {
       toast({
         title: "Uploading image...",
         description: "Saving your meal photo.",
+        duration: 2000,
       });
 
       const { error: uploadError } = await supabase.storage
@@ -77,6 +79,7 @@ const Scan = () => {
       toast({
         title: "Processing image...",
         description: "Using AI to analyze your meal.",
+        duration: 2000,
       });
 
       const analysis = await analyzeMeal(imageData);
@@ -93,20 +96,24 @@ const Scan = () => {
 
       if (insertError) throw insertError;
 
-      // Success toast
+      // Success toast - show this one longer
       toast({
         title: "Meal added successfully!",
         description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
+        duration: 3000, // Show success message longer
       });
       
-      // Navigate after successful addition
-      navigate('/');
+      // Add a small delay before navigation to ensure toast is visible
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
     } catch (error) {
       console.error('Error:', error);
       toast({
         title: "Error analyzing meal",
         description: "There was a problem processing your image. Please try again.",
         variant: "destructive",
+        duration: 3000,
       });
     }
   };
