@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import CameraComponent from '@/components/Camera';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,13 +38,9 @@ const Scan = () => {
   };
 
   const handleCapture = async (imageData: string) => {
-    setShowCamera(false); // Close camera immediately
-    
-    // Initial toast for analysis start
     toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
-      duration: 2000, // Show for 2 seconds
     });
 
     try {
@@ -53,13 +49,6 @@ const Scan = () => {
       const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
       const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
       
-      // Upload toast
-      toast({
-        title: "Uploading image...",
-        description: "Saving your meal photo.",
-        duration: 2000,
-      });
-
       const { error: uploadError } = await supabase.storage
         .from('meal-images')
         .upload(fileName, binaryData, {
@@ -74,14 +63,6 @@ const Scan = () => {
         .getPublicUrl(fileName);
 
       const publicUrl = urlData.publicUrl;
-      
-      // Analysis toast update
-      toast({
-        title: "Processing image...",
-        description: "Using AI to analyze your meal.",
-        duration: 2000,
-      });
-
       const analysis = await analyzeMeal(imageData);
 
       const { error: insertError } = await supabase
@@ -96,26 +77,22 @@ const Scan = () => {
 
       if (insertError) throw insertError;
 
-      // Success toast - show this one longer
       toast({
         title: "Meal added successfully!",
         description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
-        duration: 3000, // Show success message longer
       });
       
-      // Add a small delay before navigation to ensure toast is visible
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      navigate('/');
     } catch (error) {
       console.error('Error:', error);
       toast({
         title: "Error analyzing meal",
         description: "There was a problem processing your image. Please try again.",
         variant: "destructive",
-        duration: 3000,
       });
     }
+
+    setShowCamera(false);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

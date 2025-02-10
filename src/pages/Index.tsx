@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import DailyProgress from '@/components/DailyProgress';
 import Navigation from '@/components/Navigation';
@@ -44,26 +44,6 @@ const Index = () => {
 
   useEffect(() => {
     fetchMeals();
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('public:meals')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'meals'
-        },
-        () => {
-          fetchMeals();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const fetchMeals = async () => {
