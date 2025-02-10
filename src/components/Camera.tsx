@@ -103,6 +103,8 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
       setTimeout(() => {
         stopCamera();
         onClose();
+        // Force a reload when navigating to refresh the meals list
+        navigate('/', { replace: true });
       }, 2000);
 
     } catch (error) {
