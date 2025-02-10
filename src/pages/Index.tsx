@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
@@ -44,6 +43,26 @@ const Index = () => {
 
   useEffect(() => {
     fetchMeals();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'meals'
+        },
+        () => {
+          fetchMeals();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchMeals = async () => {
