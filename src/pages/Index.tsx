@@ -167,7 +167,7 @@ const Index = () => {
 
       <div className="max-w-4xl mx-auto px-4 pt-16 pb-4">
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
             <Card className="bg-white shadow-sm hover:shadow-md transition-all">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-full">
