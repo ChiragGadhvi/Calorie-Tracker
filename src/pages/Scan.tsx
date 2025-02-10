@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import CameraComponent from '@/components/Camera';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +38,8 @@ const Scan = () => {
   };
 
   const handleCapture = async (imageData: string) => {
+    setShowCamera(false); // Close camera immediately
+    
     toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
@@ -91,8 +93,6 @@ const Scan = () => {
         variant: "destructive",
       });
     }
-
-    setShowCamera(false);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
