@@ -37,8 +37,8 @@ const Scan = () => {
 
   const handleCapture = async (imageData: string) => {
     setIsAnalyzing(true);
-    setShowCamera(false); // Hide camera immediately
-    navigate('/'); // Navigate to home immediately
+    setShowCamera(false);
+    navigate('/');
     
     toast({
       title: "Analyzing meal...",
