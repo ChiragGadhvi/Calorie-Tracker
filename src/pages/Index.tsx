@@ -29,7 +29,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [streak, setStreak] = useState(5); // Example streak count
+  const [streak, setStreak] = useState(5);
 
   useEffect(() => {
     const getUser = async () => {
@@ -44,6 +44,27 @@ const Index = () => {
 
   useEffect(() => {
     fetchMeals();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('public:meals')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'meals'
+        },
+        (payload) => {
+          console.log('New meal inserted:', payload);
+          setMeals(currentMeals => [payload.new as Meal, ...currentMeals]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchMeals = async () => {

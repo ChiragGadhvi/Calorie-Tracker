@@ -7,6 +7,7 @@ import CameraComponent from '@/components/Camera';
 import Navigation from '@/components/Navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 const Scan = () => {
   const [showCamera, setShowCamera] = useState(false);
@@ -16,7 +17,6 @@ const Scan = () => {
   const navigate = useNavigate();
 
   const analyzeMeal = async (imageData: string) => {
-    setIsAnalyzing(true);
     try {
       const response = await fetch('https://pieymelbjcvhxcnonpms.supabase.co/functions/v1/analyze-meal', {
         method: 'POST',
@@ -32,12 +32,13 @@ const Scan = () => {
     } catch (error) {
       console.error('Error analyzing image:', error);
       throw error;
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
   const handleCapture = async (imageData: string) => {
+    setIsAnalyzing(true);
+    navigate('/');
+    
     toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
@@ -81,8 +82,6 @@ const Scan = () => {
         title: "Meal added successfully!",
         description: `Detected ${analysis.name} with ${analysis.calories} calories and ${analysis.protein}g protein.`,
       });
-      
-      navigate('/');
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -90,9 +89,9 @@ const Scan = () => {
         description: "There was a problem processing your image. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsAnalyzing(false);
     }
-
-    setShowCamera(false);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,7 +117,12 @@ const Scan = () => {
             className="h-16 bg-primary text-white hover:bg-primary/90"
             disabled={isAnalyzing}
           >
-            <Camera className="mr-2 h-6 w-6" /> Take Photo
+            {isAnalyzing ? (
+              <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+            ) : (
+              <Camera className="mr-2 h-6 w-6" />
+            )}
+            {isAnalyzing ? 'Processing...' : 'Take Photo'}
           </Button>
           
           <Button
@@ -127,7 +131,12 @@ const Scan = () => {
             className="h-16 bg-white"
             disabled={isAnalyzing}
           >
-            <Upload className="mr-2 h-6 w-6" /> Upload Image
+            {isAnalyzing ? (
+              <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+            ) : (
+              <Upload className="mr-2 h-6 w-6" />
+            )}
+            {isAnalyzing ? 'Processing...' : 'Upload Image'}
           </Button>
           
           <input
