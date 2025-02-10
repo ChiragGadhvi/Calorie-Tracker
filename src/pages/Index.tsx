@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
@@ -41,32 +42,6 @@ const Index = () => {
     getUser();
   }, []);
 
-  useEffect(() => {
-    fetchMeals();
-
-    // Subscribe to real-time changes
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'meals'
-        },
-        (payload) => {
-          // Immediately update the meals list when we receive a change
-          console.log('Received real-time update:', payload);
-          fetchMeals();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const fetchMeals = async () => {
     try {
       console.log('Fetching meals...');
@@ -87,6 +62,45 @@ const Index = () => {
       });
     }
   };
+
+  useEffect(() => {
+    // Initial fetch
+    fetchMeals();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('meal-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'meals'
+        },
+        (payload) => {
+          console.log('Received real-time update:', payload);
+          // Update the meals list immediately when we receive a change
+          if (payload.eventType === 'INSERT') {
+            const newMeal = payload.new as Meal;
+            setMeals(prevMeals => [newMeal, ...prevMeals]);
+          } else if (payload.eventType === 'DELETE') {
+            setMeals(prevMeals => prevMeals.filter(meal => meal.id !== payload.old.id));
+          } else if (payload.eventType === 'UPDATE') {
+            setMeals(prevMeals => 
+              prevMeals.map(meal => 
+                meal.id === payload.new.id ? payload.new as Meal : meal
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
