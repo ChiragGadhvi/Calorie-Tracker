@@ -85,8 +85,8 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
+      <div className="max-w-7xl mx-auto p-4">
         <div className="flex items-center mb-6">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -96,20 +96,23 @@ const History = () => {
           <h1 className="text-2xl font-bold ml-2">Meal History</h1>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {meals.map((meal) => (
-            <MealCard
-              key={meal.id}
-              {...meal}
-              image={meal.image_url}
-              timestamp={new Date(meal.created_at)}
-              onDelete={() => handleDeleteMeal(meal.id)}
-            />
+            <div key={meal.id} className="w-full">
+              <MealCard
+                {...meal}
+                image={meal.image_url}
+                timestamp={new Date(meal.created_at)}
+                onDelete={() => handleDeleteMeal(meal.id)}
+              />
+            </div>
           ))}
           {meals.length === 0 && (
-            <p className="text-center text-gray-500 py-8">
-              No meal history available.
-            </p>
+            <div className="col-span-full">
+              <p className="text-center text-gray-500 py-8">
+                No meal history available.
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -119,3 +122,4 @@ const History = () => {
 };
 
 export default History;
+
