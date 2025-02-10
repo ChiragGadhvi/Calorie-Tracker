@@ -16,6 +16,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
   };
 
   const handleImageProcessing = async (imageData: string) => {
+    setCapturedImage(imageData);
     toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
@@ -114,6 +116,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
         description: "There was a problem processing your image. Please try again.",
         variant: "destructive",
       });
+      setCapturedImage(null);
     }
   };
 
@@ -166,6 +169,12 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
           <div className="h-full flex items-center justify-center text-white p-4 text-center">
             {error}
           </div>
+        ) : capturedImage ? (
+          <img
+            src={capturedImage}
+            alt="Captured meal"
+            className="w-full h-full object-cover"
+          />
         ) : (
           <video
             ref={videoRef}
@@ -202,7 +211,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
         <Button
           onClick={takePhoto}
           className="bg-white text-black hover:bg-white/90"
-          disabled={!isStreaming}
+          disabled={!isStreaming || capturedImage !== null}
         >
           <CameraIcon className="mr-2 h-4 w-4" />
           Take Photo
