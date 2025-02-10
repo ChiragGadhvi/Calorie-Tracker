@@ -3,6 +3,9 @@ import React, { useRef, useState } from 'react';
 import { Camera as CameraIcon, XCircle, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 interface CameraComponentProps {
   onCapture: (image: string) => void;
@@ -14,6 +17,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string>('');
+  const { toast } = useToast();
 
   const startCamera = async () => {
     try {
@@ -31,6 +35,10 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
     }
   };
 
+  const handleImageProcessing = async (imageData: string) => {
+    onCapture(imageData);
+  };
+
   const takePhoto = () => {
     if (videoRef.current) {
       const canvas = document.createElement('canvas');
@@ -41,8 +49,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
         ctx.drawImage(videoRef.current, 0, 0);
         const imageData = canvas.toDataURL('image/jpeg');
         stopCamera();
-        onClose();
-        onCapture(imageData);
+        handleImageProcessing(imageData);
       }
     }
   };
@@ -54,8 +61,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const imageData = e.target?.result as string;
-      onClose();
-      onCapture(imageData);
+      handleImageProcessing(imageData);
     };
     reader.readAsDataURL(file);
   };
