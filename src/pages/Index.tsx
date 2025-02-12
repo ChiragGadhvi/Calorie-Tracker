@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,8 +29,6 @@ const Index = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [streak, setStreak] = useState(5);
@@ -58,6 +56,27 @@ const Index = () => {
     }
   };
 
+  const fetchSubscription = async (userId: string) => {
+    console.log('Fetching subscription for user:', userId);
+    const { data: subscriptionData, error } = await supabase
+      .from('subscriptions')
+      .select('remaining_analyses')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching subscription:', error);
+      toast({
+        title: "Error loading subscription",
+        description: "There was a problem loading your subscription details.",
+        variant: "destructive",
+      });
+    } else {
+      console.log('Subscription data:', subscriptionData);
+      setSubscription(subscriptionData);
+    }
+  };
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -67,28 +86,32 @@ const Index = () => {
       }
 
       if (user) {
-        console.log('Fetching subscription for user:', user.id);
-        const { data: subscriptionData, error } = await supabase
-          .from('subscriptions')
-          .select('remaining_analyses')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching subscription:', error);
-          toast({
-            title: "Error loading subscription",
-            description: "There was a problem loading your subscription details.",
-            variant: "destructive",
-          });
-        } else {
-          console.log('Subscription data:', subscriptionData);
-          setSubscription(subscriptionData);
-        }
+        fetchSubscription(user.id);
       }
     };
     getUser();
-  }, [toast]);
+
+    const channel = supabase
+      .channel('subscription-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'subscriptions',
+        },
+        (payload: any) => {
+          if (payload.new && user && payload.new.user_id === user.id) {
+            setSubscription(payload.new);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -189,7 +212,14 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Remaining Analyses</p>
-                      <p className="text-lg font-semibold">{subscription.remaining_analyses}/3</p>
+                      <p className="text-lg font-semibold">
+                        {subscription.remaining_analyses}/3
+                        {subscription.remaining_analyses === 0 && (
+                          <span className="ml-2 text-sm text-gray-500">
+                            (Thank you for using the app!)
+                          </span>
+                        )}
+                      </p>
                     </div>
                   </div>
                 </div>

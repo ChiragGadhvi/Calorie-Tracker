@@ -15,35 +15,63 @@ const Navigation = () => {
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const [remainingAnalyses, setRemainingAnalyses] = useState<number | null>(null);
 
-  useEffect(() => {
-    const checkAnalysisLimit = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+  const checkAnalysisLimit = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-        const { data: subscription, error } = await supabase
-          .from('subscriptions')
-          .select('remaining_analyses')
-          .eq('user_id', user.id)
-          .single();
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .select('remaining_analyses')
+        .eq('user_id', user.id)
+        .single();
 
-        if (error) throw error;
+      if (error) throw error;
 
-        setRemainingAnalyses(subscription.remaining_analyses);
-        setHasReachedLimit(subscription.remaining_analyses <= 0);
-      } catch (error) {
-        console.error('Error checking analysis limit:', error);
+      setRemainingAnalyses(subscription.remaining_analyses);
+      setHasReachedLimit(subscription.remaining_analyses <= 0);
+
+      if (subscription.remaining_analyses <= 0) {
+        toast({
+          title: "Analysis Limit Reached",
+          description: "Thank you for using the app! You've completed all your available meal analyses.",
+          duration: 6000,
+        });
       }
-    };
+    } catch (error) {
+      console.error('Error checking analysis limit:', error);
+    }
+  };
 
+  useEffect(() => {
     checkAnalysisLimit();
+
+    // Subscribe to subscription changes
+    const channel = supabase
+      .channel('subscription-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'subscriptions',
+        },
+        () => {
+          checkAnalysisLimit();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleScanClick = () => {
     if (hasReachedLimit) {
       toast({
         title: "Analysis Limit Reached",
-        description: `You've used all your available meal analyses. Each user gets 3 free analyses for testing.`,
+        description: "Thank you for using the app! You've completed all your available meal analyses.",
         duration: 6000,
       });
     } else {
@@ -87,10 +115,11 @@ const Navigation = () => {
                 onClick={handleScanClick}
                 className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50 cursor-not-allowed' : ''}`}
                 type="button"
+                disabled={hasReachedLimit}
               >
                 <Camera className="h-5 w-5" />
               </button>
-              <span className="text-xs mt-1">Scan</span>
+              <span className="text-xs mt-1">Scan {hasReachedLimit ? '(Completed)' : ''}</span>
             </div>
             <Link to="/history" className="flex flex-col items-center p-2">
               <div className={`p-2 ${isActive('/history')}`}>
