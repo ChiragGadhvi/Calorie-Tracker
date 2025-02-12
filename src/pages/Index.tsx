@@ -73,11 +73,31 @@ const Index = () => {
         } else {
           console.log('Subscription data:', subscriptionData);
           setSubscription(subscriptionData);
+          
+          // Show upgrade notification if limit is reached
+          const tierInfo = getTierInfo(subscriptionData.tier);
+          if (subscriptionData.meals_analyzed >= tierInfo.limit) {
+            toast({
+              title: "Meal Analysis Limit Reached",
+              description: `You've used ${subscriptionData.meals_analyzed}/${tierInfo.limit} meal analyses on your ${tierInfo.name}. Upgrade your plan to analyze more meals!`,
+              duration: 5000,
+              action: (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/profile')}
+                  className="mt-2"
+                >
+                  Upgrade Plan
+                </Button>
+              ),
+            });
+          }
         }
       }
     };
     getUser();
-  }, [toast]);
+  }, [toast, navigate]);
 
   const fetchMeals = async () => {
     try {
