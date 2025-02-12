@@ -46,7 +46,6 @@ const Navigation = () => {
   useEffect(() => {
     checkAnalysisLimit();
 
-    // Subscribe to subscription changes
     const channel = supabase
       .channel('subscription-changes')
       .on(
@@ -71,8 +70,8 @@ const Navigation = () => {
     if (hasReachedLimit) {
       toast({
         title: "Analysis Limit Reached",
-        description: "Thank you for using the app! You've completed all your available meal analyses.",
-        duration: 6000,
+        description: "Thank you for using the app! You've completed all available meal analyses.",
+        duration: 4000,
       });
     } else {
       setShowCamera(true);
@@ -113,11 +112,11 @@ const Navigation = () => {
             <div className="flex flex-col items-center p-2">
               <button
                 onClick={handleScanClick}
-                className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                type="button"
+                className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50' : ''}`}
                 disabled={hasReachedLimit}
+                aria-disabled={hasReachedLimit}
               >
-                <Camera className="h-5 w-5" />
+                <Camera className={`h-5 w-5 ${hasReachedLimit ? 'text-gray-400' : ''}`} />
               </button>
               <span className="text-xs mt-1">Scan {hasReachedLimit ? '(Completed)' : ''}</span>
             </div>
