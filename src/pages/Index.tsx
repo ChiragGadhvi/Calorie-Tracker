@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
@@ -213,7 +214,7 @@ const Index = () => {
                     <div>
                       <p className="text-sm text-gray-600">Remaining Analyses</p>
                       <p className="text-lg font-semibold">
-                        {subscription.remaining_analyses}/3
+                        {subscription.remaining_analyses}/2
                         {subscription.remaining_analyses === 0 && (
                           <span className="ml-2 text-sm text-gray-500">
                             (Thank you for using the app!)
