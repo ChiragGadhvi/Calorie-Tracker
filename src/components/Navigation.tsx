@@ -13,59 +13,38 @@ const Navigation = () => {
   const { toast } = useToast();
   const [showCamera, setShowCamera] = useState(false);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
-  const [subscriptionInfo, setSubscriptionInfo] = useState<{ current: number; limit: number; tier: string } | null>(null);
+  const [remainingAnalyses, setRemainingAnalyses] = useState<number | null>(null);
 
   useEffect(() => {
-    const checkSubscriptionLimit = async () => {
+    const checkAnalysisLimit = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data: subscription, error } = await supabase
           .from('subscriptions')
-          .select('tier, meals_analyzed')
+          .select('remaining_analyses')
           .eq('user_id', user.id)
           .single();
 
         if (error) throw error;
 
-        const limits = {
-          free: 1,
-          pro: 3,
-          pro_plus: 5
-        };
-
-        const limit = limits[subscription.tier as keyof typeof limits];
-        setSubscriptionInfo({
-          current: subscription.meals_analyzed,
-          limit,
-          tier: subscription.tier
-        });
-        setHasReachedLimit(subscription.meals_analyzed >= limit);
+        setRemainingAnalyses(subscription.remaining_analyses);
+        setHasReachedLimit(subscription.remaining_analyses <= 0);
       } catch (error) {
-        console.error('Error checking subscription limit:', error);
+        console.error('Error checking analysis limit:', error);
       }
     };
 
-    checkSubscriptionLimit();
+    checkAnalysisLimit();
   }, []);
 
   const handleScanClick = () => {
-    if (hasReachedLimit && subscriptionInfo) {
+    if (hasReachedLimit) {
       toast({
-        title: "Subscription Limit Reached",
-        description: `You've used ${subscriptionInfo.current}/${subscriptionInfo.limit} meal analyses on your ${subscriptionInfo.tier} plan. Upgrade to analyze more meals!`,
+        title: "Analysis Limit Reached",
+        description: `You've used all your available meal analyses. Each user gets 3 free analyses for testing.`,
         duration: 6000,
-        action: (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate('/profile')}
-            className="mt-2"
-          >
-            Upgrade Plan
-          </Button>
-        ),
       });
     } else {
       setShowCamera(true);

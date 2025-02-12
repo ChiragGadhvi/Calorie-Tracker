@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Award, Utensils, TrendingUp, Crown } from 'lucide-react';
+import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
@@ -22,18 +23,8 @@ interface Meal {
 }
 
 interface Subscription {
-  tier: 'free' | 'pro' | 'pro_plus';
-  meals_analyzed: number;
+  remaining_analyses: number;
 }
-
-const getTierInfo = (tier: string) => {
-  const tiers = {
-    free: { limit: 1, color: 'text-gray-600', name: 'Free Plan' },
-    pro: { limit: 3, color: 'text-blue-600', name: 'Pro Plan' },
-    pro_plus: { limit: 5, color: 'text-purple-600', name: 'Pro Plus Plan' }
-  };
-  return tiers[tier as keyof typeof tiers] || tiers.free;
-};
 
 const Index = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -80,7 +71,7 @@ const Index = () => {
         console.log('Fetching subscription for user:', user.id);
         const { data: subscriptionData, error } = await supabase
           .from('subscriptions')
-          .select('tier, meals_analyzed')
+          .select('remaining_analyses')
           .eq('user_id', user.id)
           .single();
 
@@ -126,49 +117,6 @@ const Index = () => {
       supabase.removeChannel(channel);
     };
   }, [user]);
-
-  const handleUpgrade = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to upgrade your plan.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const response = await fetch('https://pieymelbjcvhxcnonpms.supabase.co/functions/v1/create-stripe-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: JSON.stringify({
-          tier: 'pro',
-          user_id: user.id,
-        }),
-      });
-
-      const { url, error } = await response.json();
-      
-      if (error) {
-        throw new Error(error);
-      }
-
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start checkout process. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
@@ -222,29 +170,15 @@ const Index = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 bg-primary/10 rounded-full ${getTierInfo(subscription.tier).color}`}>
-                      <Crown className="h-5 w-5" />
+                    <div className="p-2 bg-primary/10 rounded-full text-primary">
+                      <Award className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Current Plan</p>
-                      <p className="text-lg font-semibold">{getTierInfo(subscription.tier).name}</p>
+                      <p className="text-sm text-gray-600">Remaining Analyses</p>
+                      <p className="text-lg font-semibold">{subscription.remaining_analyses}/3</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600">Meal Analysis</p>
-                    <p className="text-lg font-semibold">
-                      {subscription.meals_analyzed}/{getTierInfo(subscription.tier).limit}
-                    </p>
-                  </div>
                 </div>
-                {subscription.meals_analyzed >= getTierInfo(subscription.tier).limit && (
-                  <Button 
-                    className="w-full mt-4"
-                    onClick={handleUpgrade}
-                  >
-                    Upgrade Plan
-                  </Button>
-                )}
               </CardContent>
             </Card>
           )}
