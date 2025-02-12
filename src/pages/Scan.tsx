@@ -53,6 +53,8 @@ const Scan = () => {
               </Button>
             ),
           });
+          // Immediately redirect to home page if limit is reached
+          navigate('/');
           return;
         }
       } catch (error) {
@@ -62,6 +64,11 @@ const Scan = () => {
 
     checkSubscriptionLimit();
   }, [toast, navigate]);
+
+  // If limit is reached, don't render anything as we're redirecting
+  if (hasReachedLimit) {
+    return null;
+  }
 
   const analyzeMeal = async (imageData: string) => {
     setIsAnalyzing(true);
@@ -187,28 +194,6 @@ const Scan = () => {
     };
     reader.readAsDataURL(file);
   };
-
-  if (hasReachedLimit) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
-        <div className="max-w-4xl mx-auto px-4 pt-6">
-          <h1 className="text-2xl font-bold text-center mb-8">Subscription Limit Reached</h1>
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">
-              You've reached your meal analysis limit. Upgrade your plan to analyze more meals!
-            </p>
-            <Button 
-              onClick={() => navigate('/profile')}
-              className="bg-primary text-white hover:bg-primary/90"
-            >
-              Upgrade Plan
-            </Button>
-          </div>
-        </div>
-        <Navigation />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
