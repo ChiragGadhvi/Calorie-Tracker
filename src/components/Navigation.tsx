@@ -30,14 +30,6 @@ const Navigation = () => {
 
       setRemainingAnalyses(subscription.remaining_analyses);
       setHasReachedLimit(subscription.remaining_analyses <= 0);
-
-      if (subscription.remaining_analyses <= 0) {
-        toast({
-          title: "Analysis Limit Reached",
-          description: "Thank you for using the app! You've completed all your available meal analyses.",
-          duration: 6000,
-        });
-      }
     } catch (error) {
       console.error('Error checking analysis limit:', error);
     }
