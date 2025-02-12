@@ -28,7 +28,12 @@ const Auth = () => {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes('User already registered')) {
+            throw new Error('This email is already registered. Please sign in instead.');
+          }
+          throw error;
+        }
 
         toast({
           title: "Success",
@@ -41,7 +46,7 @@ const Auth = () => {
         });
 
         if (error) {
-          if (error.message === 'Invalid login credentials') {
+          if (error.message.includes('Invalid login credentials')) {
             throw new Error('Invalid email or password. Please try again.');
           }
           throw error;
@@ -56,9 +61,10 @@ const Auth = () => {
     } catch (error: any) {
       console.error('Auth error:', error);
       toast({
-        title: "Error",
+        title: "Authentication Error",
         description: error.message || "An error occurred during authentication",
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);
