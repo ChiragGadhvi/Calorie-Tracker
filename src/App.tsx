@@ -18,15 +18,30 @@ function App() {
 
   useEffect(() => {
     // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Session check error:', error);
+          setSession(null);
+        } else {
+          setSession(currentSession);
+        }
+      } catch (error) {
+        console.error('Session check failed:', error);
+        setSession(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('Auth state changed:', _event, session ? 'session exists' : 'no session');
       setSession(session);
       setLoading(false);
     });
