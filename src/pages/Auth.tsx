@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,17 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/');
+      }
+    };
+    checkUser();
+  }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +49,11 @@ const Auth = () => {
         toast({
           title: "Success",
           description: "Please check your email to confirm your registration.",
+          duration: 5000,
         });
+        
+        // Switch to sign in mode after successful registration
+        setIsSignUp(false);
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -46,17 +61,20 @@ const Auth = () => {
         });
 
         if (error) {
+          console.error('Sign in error details:', error);
           if (error.message.includes('Invalid login credentials')) {
-            throw new Error('Invalid email or password. Please try again.');
+            throw new Error('Invalid email or password. Please try again, or sign up if you don\'t have an account.');
           }
           throw error;
         }
 
-        toast({
-          title: "Success",
-          description: "Successfully logged in!",
-        });
-        navigate('/');
+        if (data.session) {
+          toast({
+            title: "Success",
+            description: "Successfully logged in!",
+          });
+          navigate('/');
+        }
       }
     } catch (error: any) {
       console.error('Auth error:', error);
@@ -112,6 +130,11 @@ const Auth = () => {
                 className="w-full mt-1"
                 minLength={6}
               />
+              {isSignUp && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Password must be at least 6 characters long
+                </p>
+              )}
             </div>
           </div>
 
@@ -122,7 +145,11 @@ const Auth = () => {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setEmail('');
+                setPassword('');
+              }}
               className="text-sm text-primary hover:underline"
             >
               {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
