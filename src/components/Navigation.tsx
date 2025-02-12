@@ -1,14 +1,76 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { History, Target, Camera, User, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 import CameraComponent from '@/components/Camera';
+import { supabase } from '@/integrations/supabase/client';
 
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showCamera, setShowCamera] = React.useState(false);
+  const { toast } = useToast();
+  const [showCamera, setShowCamera] = useState(false);
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<{ current: number; limit: number; tier: string } | null>(null);
+
+  useEffect(() => {
+    const checkSubscriptionLimit = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: subscription, error } = await supabase
+          .from('subscriptions')
+          .select('tier, meals_analyzed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        const limits = {
+          free: 1,
+          pro: 3,
+          pro_plus: 5
+        };
+
+        const limit = limits[subscription.tier as keyof typeof limits];
+        setSubscriptionInfo({
+          current: subscription.meals_analyzed,
+          limit,
+          tier: subscription.tier
+        });
+        setHasReachedLimit(subscription.meals_analyzed >= limit);
+      } catch (error) {
+        console.error('Error checking subscription limit:', error);
+      }
+    };
+
+    checkSubscriptionLimit();
+  }, []);
+
+  const handleScanClick = () => {
+    if (hasReachedLimit && subscriptionInfo) {
+      toast({
+        title: "Subscription Limit Reached",
+        description: `You've used ${subscriptionInfo.current}/${subscriptionInfo.limit} meal analyses on your ${subscriptionInfo.tier} plan. Upgrade to analyze more meals!`,
+        duration: 6000,
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/profile')}
+            className="mt-2"
+          >
+            Upgrade Plan
+          </Button>
+        ),
+      });
+    } else {
+      setShowCamera(true);
+    }
+  };
 
   const isActive = (path: string) => {
     return location.pathname === path ? "text-primary ring-2 ring-primary rounded-full" : "text-gray-600";
@@ -16,16 +78,13 @@ const Navigation = () => {
 
   return (
     <>
-      {showCamera && (
+      {showCamera && !hasReachedLimit && (
         <CameraComponent
           onCapture={(imageData) => {
             setShowCamera(false);
-            navigate('/');
+            navigate('/scan');
           }}
-          onClose={() => {
-            setShowCamera(false);
-            navigate('/');
-          }}
+          onClose={() => setShowCamera(false)}
         />
       )}
       
@@ -46,8 +105,9 @@ const Navigation = () => {
             </Link>
             <div className="flex flex-col items-center p-2">
               <button
-                onClick={() => setShowCamera(true)}
-                className={`p-2 cursor-pointer ${isActive('/scan')}`}
+                onClick={handleScanClick}
+                className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50' : ''}`}
+                disabled={hasReachedLimit}
               >
                 <Camera className="h-5 w-5" />
               </button>
