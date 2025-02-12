@@ -18,17 +18,38 @@ const Scan = () => {
   const analyzeMeal = async (imageData: string) => {
     setIsAnalyzing(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const response = await fetch('https://pieymelbjcvhxcnonpms.supabase.co/functions/v1/analyze-meal', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXltZWxiamN2aHhjbm9ucG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NzM0MzcsImV4cCI6MjA1NDI0OTQzN30.S2BdZHFJA6GY8JenEYLUu3IOVlq1pJbRCHIjOy04vgk`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
         },
-        body: JSON.stringify({ image: imageData }),
+        body: JSON.stringify({ 
+          image: imageData,
+          user_id: user.id
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to analyze image');
-      return await response.json();
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          // Subscription limit reached
+          toast({
+            title: "Subscription Limit Reached",
+            description: `You've reached the meal analysis limit for your ${data.tier} plan (${data.current}/${data.limit}). Upgrade your plan to analyze more meals.`,
+            variant: "destructive",
+          });
+          navigate('/profile'); // Redirect to profile page where they can upgrade
+          return null;
+        }
+        throw new Error(data.error || 'Failed to analyze image');
+      }
+
+      return data;
     } catch (error) {
       console.error('Error analyzing image:', error);
       throw error;
@@ -64,6 +85,8 @@ const Scan = () => {
 
       const publicUrl = urlData.publicUrl;
       const analysis = await analyzeMeal(imageData);
+      
+      if (!analysis) return; // Analysis failed (e.g., due to subscription limits)
 
       const { error: insertError } = await supabase
         .from('meals')

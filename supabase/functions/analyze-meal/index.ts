@@ -5,6 +5,11 @@ import { OpenAI } from 'https://deno.land/x/openai@v4.20.1/mod.ts'
 
 const openai = new OpenAI(Deno.env.get('OPENAI_API_KEY')!)
 
+const supabaseClient = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+)
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -26,7 +31,7 @@ serve(async (req) => {
       )
     }
 
-    const { image } = requestData
+    const { image, user_id } = requestData
 
     if (!image || typeof image !== 'string') {
       return new Response(
@@ -35,10 +40,53 @@ serve(async (req) => {
       )
     }
 
+    if (!user_id) {
+      return new Response(
+        JSON.stringify({ error: 'User ID is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Get user's subscription info
+    const { data: subscription, error: subscriptionError } = await supabaseClient
+      .from('subscriptions')
+      .select('tier, meals_analyzed')
+      .eq('user_id', user_id)
+      .single()
+
+    if (subscriptionError) {
+      console.error('Error fetching subscription:', subscriptionError)
+      return new Response(
+        JSON.stringify({ error: 'Error fetching subscription information' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Define meal limits based on tier
+    const mealLimits = {
+      free: 1,
+      pro: 3,
+      pro_plus: 5
+    }
+
+    const limit = mealLimits[subscription.tier as keyof typeof mealLimits]
+    
+    if (subscription.meals_analyzed >= limit) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Meal analysis limit reached',
+          current: subscription.meals_analyzed,
+          limit: limit,
+          tier: subscription.tier
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     console.log('Calling OpenAI API with image...')
     
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "system",
@@ -97,6 +145,20 @@ serve(async (req) => {
       ...analysis,
       calories: Math.round(Number(analysis.calories)) || 0,
       protein: Math.round(Number(analysis.protein)) || 0,
+    }
+
+    // Increment the meals_analyzed count
+    const { error: updateError } = await supabaseClient
+      .from('subscriptions')
+      .update({ meals_analyzed: subscription.meals_analyzed + 1 })
+      .eq('user_id', user_id)
+
+    if (updateError) {
+      console.error('Error updating meals_analyzed:', updateError)
+      return new Response(
+        JSON.stringify({ error: 'Error updating meal analysis count' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     return new Response(
