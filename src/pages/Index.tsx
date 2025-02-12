@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
+import { LogOut, Award, Utensils, TrendingUp, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
@@ -23,6 +22,20 @@ interface Meal {
   user_id: string;
 }
 
+interface Subscription {
+  tier: 'free' | 'pro' | 'pro_plus';
+  meals_analyzed: number;
+}
+
+const getTierInfo = (tier: string) => {
+  const tiers = {
+    free: { limit: 1, color: 'text-gray-600', name: 'Free Plan' },
+    pro: { limit: 3, color: 'text-blue-600', name: 'Pro Plan' },
+    pro_plus: { limit: 5, color: 'text-purple-600', name: 'Pro Plus Plan' }
+  };
+  return tiers[tier as keyof typeof tiers] || tiers.free;
+};
+
 const Index = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
@@ -30,7 +43,8 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [streak, setStreak] = useState(5); // Example streak count
+  const [streak, setStreak] = useState(5);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -39,9 +53,29 @@ const Index = () => {
       if (user?.user_metadata?.avatar_url) {
         setAvatarUrl(user.user_metadata.avatar_url);
       }
+
+      // Fetch subscription data
+      if (user) {
+        const { data: subscriptionData, error } = await supabase
+          .from('subscriptions')
+          .select('tier, meals_analyzed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching subscription:', error);
+          toast({
+            title: "Error loading subscription",
+            description: "There was a problem loading your subscription details.",
+            variant: "destructive",
+          });
+        } else {
+          setSubscription(subscriptionData);
+        }
+      }
     };
     getUser();
-  }, []);
+  }, [toast]);
 
   const fetchMeals = async () => {
     try {
@@ -67,58 +101,9 @@ const Index = () => {
 
   useEffect(() => {
     if (user) {
-      // Only fetch meals when we have a user
       fetchMeals();
-
-      // Subscribe to real-time changes for the current user's meals only
-      const channel = supabase
-        .channel('meal-updates')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'meals',
-            filter: `user_id=eq.${user.id}`, // Filter realtime updates by user_id
-          },
-          (payload) => {
-            console.log('Received real-time update:', payload);
-            // Update the meals list immediately when we receive a change
-            if (payload.eventType === 'INSERT') {
-              const newMeal = payload.new as Meal;
-              setMeals(prevMeals => [newMeal, ...prevMeals]);
-            } else if (payload.eventType === 'DELETE') {
-              setMeals(prevMeals => prevMeals.filter(meal => meal.id !== payload.old.id));
-            } else if (payload.eventType === 'UPDATE') {
-              setMeals(prevMeals => 
-                prevMeals.map(meal => 
-                  meal.id === payload.new.id ? payload.new as Meal : meal
-                )
-              );
-            }
-          }
-        )
-        .subscribe();
-
-      // Cleanup subscription on component unmount
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
-  }, [user?.id]); // Depend on user.id instead of user to avoid unnecessary re-renders
-
-  const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Error signing out",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      navigate('/');
-    }
-  };
+  }, [user]);
 
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
@@ -157,7 +142,7 @@ const Index = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleSignOut}
+            onClick={() => navigate('/profile')}
             className="text-gray-600 hover:text-gray-900"
           >
             <LogOut className="h-4 w-4" />
@@ -167,7 +152,39 @@ const Index = () => {
 
       <div className="max-w-4xl mx-auto px-4 pt-16 pb-4">
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
+          {subscription && (
+            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 bg-primary/10 rounded-full ${getTierInfo(subscription.tier).color}`}>
+                      <Crown className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Current Plan</p>
+                      <p className="text-lg font-semibold">{getTierInfo(subscription.tier).name}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Meal Analysis</p>
+                    <p className="text-lg font-semibold">
+                      {subscription.meals_analyzed}/{getTierInfo(subscription.tier).limit}
+                    </p>
+                  </div>
+                </div>
+                {subscription.meals_analyzed >= getTierInfo(subscription.tier).limit && (
+                  <Button 
+                    className="w-full mt-4"
+                    onClick={() => navigate('/profile')}
+                  >
+                    Upgrade Plan
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Card className="bg-white shadow-sm hover:shadow-md transition-all">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-full">
