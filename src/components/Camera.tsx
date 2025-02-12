@@ -39,16 +39,27 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
 
   const analyzeMeal = async (imageData: string) => {
     try {
+      // Get the current authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const response = await fetch('https://pieymelbjcvhxcnonpms.supabase.co/functions/v1/analyze-meal', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXltZWxiamN2aHhjbm9ucG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NzM0MzcsImV4cCI6MjA1NDI0OTQzN30.S2BdZHFJA6GY8JenEYLUu3IOVlq1pJbRCHIjOy04vgk`,
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
         },
-        body: JSON.stringify({ image: imageData }),
+        body: JSON.stringify({ 
+          image: imageData,
+          user_id: user.id
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to analyze image');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze image');
+      }
+
       return await response.json();
     } catch (error) {
       console.error('Error analyzing image:', error);
@@ -64,6 +75,9 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
     });
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const timestamp = Date.now();
       const fileName = `${timestamp}.jpg`;
       const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
@@ -93,6 +107,7 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
           protein: analysis.protein,
           name: analysis.name,
           description: analysis.description,
+          user_id: user.id,
         }]);
 
       if (insertError) throw insertError;
@@ -105,7 +120,6 @@ const CameraComponent = ({ onCapture, onClose }: CameraComponentProps) => {
       setTimeout(() => {
         stopCamera();
         onClose();
-        // Force a reload when navigating to refresh the meals list
         navigate('/', { replace: true });
       }, 2000);
 
