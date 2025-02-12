@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -124,6 +125,11 @@ const Scan = () => {
   };
 
   const handleCapture = async (imageData: string) => {
+    if (hasReachedLimit) {
+      navigate('/');
+      return;
+    }
+
     toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
@@ -184,6 +190,11 @@ const Scan = () => {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (hasReachedLimit) {
+      navigate('/');
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -229,7 +240,7 @@ const Scan = () => {
         </div>
       </div>
 
-      {showCamera && (
+      {showCamera && !hasReachedLimit && (
         <CameraComponent
           onCapture={handleCapture}
           onClose={() => setShowCamera(false)}
