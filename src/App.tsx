@@ -54,7 +54,7 @@ function App() {
             session ? (
               <Index />
             ) : (
-              <Navigate to="/auth" replace />
+              <Landing />
             )
           } 
         />
@@ -64,19 +64,19 @@ function App() {
         />
         <Route
           path="/goals"
-          element={session ? <Goals /> : <Navigate to="/auth" replace />}
+          element={session ? <Goals /> : <Navigate to="/" replace />}
         />
         <Route
           path="/history"
-          element={session ? <History /> : <Navigate to="/auth" replace />}
+          element={session ? <History /> : <Navigate to="/" replace />}
         />
         <Route
           path="/profile"
-          element={session ? <Profile /> : <Navigate to="/auth" replace />}
+          element={session ? <Profile /> : <Navigate to="/" replace />}
         />
         <Route
           path="/scan"
-          element={session ? <Scan /> : <Navigate to="/auth" replace />}
+          element={session ? <Scan /> : <Navigate to="/" replace />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
