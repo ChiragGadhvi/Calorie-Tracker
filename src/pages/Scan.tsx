@@ -1,5 +1,4 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -11,9 +10,58 @@ import { useNavigate } from 'react-router-dom';
 const Scan = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSubscriptionLimit = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: subscription, error } = await supabase
+          .from('subscriptions')
+          .select('tier, meals_analyzed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        const limits = {
+          free: 1,
+          pro: 3,
+          pro_plus: 5
+        };
+
+        const limit = limits[subscription.tier as keyof typeof limits];
+        if (subscription.meals_analyzed >= limit) {
+          setHasReachedLimit(true);
+          toast({
+            title: "Subscription Limit Reached",
+            description: `You've used ${subscription.meals_analyzed}/${limit} meal analyses on your ${subscription.tier} plan. Upgrade to analyze more meals!`,
+            duration: 6000,
+            action: (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/profile')}
+                className="mt-2"
+              >
+                Upgrade Plan
+              </Button>
+            ),
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking subscription limit:', error);
+      }
+    };
+
+    checkSubscriptionLimit();
+  }, [toast, navigate]);
 
   const analyzeMeal = async (imageData: string) => {
     setIsAnalyzing(true);
@@ -37,6 +85,7 @@ const Scan = () => {
 
       if (!response.ok) {
         if (response.status === 403 && data.error === 'Meal analysis limit reached') {
+          setHasReachedLimit(true);
           toast({
             title: "Subscription Limit Reached",
             description: `You've used ${data.current}/${data.limit} meal analyses on your ${data.tier} plan. Upgrade to analyze more meals!`,
@@ -139,6 +188,28 @@ const Scan = () => {
     reader.readAsDataURL(file);
   };
 
+  if (hasReachedLimit) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
+        <div className="max-w-4xl mx-auto px-4 pt-6">
+          <h1 className="text-2xl font-bold text-center mb-8">Subscription Limit Reached</h1>
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">
+              You've reached your meal analysis limit. Upgrade your plan to analyze more meals!
+            </p>
+            <Button 
+              onClick={() => navigate('/profile')}
+              className="bg-primary text-white hover:bg-primary/90"
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        </div>
+        <Navigation />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
       <div className="max-w-4xl mx-auto px-4 pt-6">
@@ -148,7 +219,7 @@ const Scan = () => {
           <Button
             onClick={() => setShowCamera(true)}
             className="h-16 bg-primary text-white hover:bg-primary/90"
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || hasReachedLimit}
           >
             <Camera className="mr-2 h-6 w-6" /> Take Photo
           </Button>
@@ -157,7 +228,7 @@ const Scan = () => {
             onClick={() => fileInputRef.current?.click()}
             variant="outline"
             className="h-16 bg-white"
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || hasReachedLimit}
           >
             <Upload className="mr-2 h-6 w-6" /> Upload Image
           </Button>
@@ -168,6 +239,7 @@ const Scan = () => {
             accept="image/*"
             onChange={handleFileUpload}
             className="hidden"
+            disabled={hasReachedLimit}
           />
         </div>
       </div>
