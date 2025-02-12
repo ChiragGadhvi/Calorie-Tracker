@@ -171,6 +171,8 @@ const Index = () => {
     }
   };
 
+  const TOTAL_ANALYSES = 2;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
       <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
@@ -214,7 +216,7 @@ const Index = () => {
                     <div>
                       <p className="text-sm text-gray-600">Remaining Analyses</p>
                       <p className="text-lg font-semibold">
-                        {subscription.remaining_analyses}/2
+                        {subscription.remaining_analyses}/{TOTAL_ANALYSES}
                         {subscription.remaining_analyses === 0 && (
                           <span className="ml-2 text-sm text-gray-500">
                             (Thank you for using the app!)
