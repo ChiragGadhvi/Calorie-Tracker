@@ -56,6 +56,7 @@ const Index = () => {
 
       // Fetch subscription data
       if (user) {
+        console.log('Fetching subscription for user:', user.id);
         const { data: subscriptionData, error } = await supabase
           .from('subscriptions')
           .select('tier, meals_analyzed')
@@ -70,6 +71,7 @@ const Index = () => {
             variant: "destructive",
           });
         } else {
+          console.log('Subscription data:', subscriptionData);
           setSubscription(subscriptionData);
         }
       }
@@ -83,7 +85,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from('meals')
         .select('*')
-        .eq('user_id', user?.id)  // Filter by current user's ID
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
