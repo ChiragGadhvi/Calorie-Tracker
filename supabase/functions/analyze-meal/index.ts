@@ -76,7 +76,7 @@ serve(async (req) => {
     console.log('Calling OpenAI API with image...')
     
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
