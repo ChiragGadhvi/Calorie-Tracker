@@ -106,8 +106,8 @@ const Navigation = () => {
             <div className="flex flex-col items-center p-2">
               <button
                 onClick={handleScanClick}
-                className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50' : ''}`}
-                disabled={hasReachedLimit}
+                className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                type="button"
               >
                 <Camera className="h-5 w-5" />
               </button>
