@@ -36,14 +36,23 @@ const Scan = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 403) {
-          // Subscription limit reached
+        if (response.status === 403 && data.error === 'Meal analysis limit reached') {
           toast({
             title: "Subscription Limit Reached",
-            description: `You've reached the meal analysis limit for your ${data.tier} plan (${data.current}/${data.limit}). Upgrade your plan to analyze more meals.`,
-            variant: "destructive",
+            description: `You've used ${data.current}/${data.limit} meal analyses on your ${data.tier} plan. Upgrade to analyze more meals!`,
+            duration: 6000,
+            action: (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/profile')}
+                className="mt-2"
+              >
+                Upgrade Plan
+              </Button>
+            ),
           });
-          navigate('/profile'); // Redirect to profile page where they can upgrade
+          navigate('/');
           return null;
         }
         throw new Error(data.error || 'Failed to analyze image');
@@ -106,7 +115,7 @@ const Scan = () => {
       });
       
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       toast({
         title: "Error analyzing meal",
