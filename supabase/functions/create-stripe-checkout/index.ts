@@ -27,8 +27,8 @@ serve(async (req) => {
 
     // Define prices based on tier
     const prices = {
-      pro: 'price_xxxxx', // Replace with your Stripe price ID for Pro
-      pro_plus: 'price_yyyyy', // Replace with your Stripe price ID for Pro Plus
+      pro: 'price_1QreFBSJ0lXQIG9x66aCSuk4',
+      pro_plus: 'price_1QreFoSJ0lXQIG9xqiV1nZyV',
     }
 
     const price_id = prices[tier as keyof typeof prices]
