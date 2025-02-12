@@ -47,10 +47,10 @@ serve(async (req) => {
       )
     }
 
-    // Get user's subscription info
+    // Check remaining analyses
     const { data: subscription, error: subscriptionError } = await supabaseClient
       .from('subscriptions')
-      .select('tier, meals_analyzed')
+      .select('remaining_analyses')
       .eq('user_id', user_id)
       .single()
 
@@ -62,22 +62,12 @@ serve(async (req) => {
       )
     }
 
-    // Define meal limits based on tier
-    const mealLimits = {
-      free: 1,
-      pro: 3,
-      pro_plus: 5
-    }
-
-    const limit = mealLimits[subscription.tier as keyof typeof mealLimits]
-    
-    if (subscription.meals_analyzed >= limit) {
+    if (subscription.remaining_analyses <= 0) {
       return new Response(
         JSON.stringify({ 
-          error: 'Meal analysis limit reached',
-          current: subscription.meals_analyzed,
-          limit: limit,
-          tier: subscription.tier
+          error: 'No analyses remaining',
+          current: 0,
+          limit: 3
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
@@ -86,7 +76,7 @@ serve(async (req) => {
     console.log('Calling OpenAI API with image...')
     
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Updated to use the new model
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "system",
@@ -108,7 +98,6 @@ serve(async (req) => {
           ],
         },
       ],
-      temperature: 0.5,
       max_tokens: 1000,
     })
 
@@ -123,7 +112,6 @@ serve(async (req) => {
 
     let analysis
     try {
-      // Remove any potential markdown formatting
       const cleanResponse = response.replace(/```json\n?|\n?```/g, '').trim()
       analysis = JSON.parse(cleanResponse)
     } catch (error) {
@@ -147,16 +135,16 @@ serve(async (req) => {
       protein: Math.round(Number(analysis.protein)) || 0,
     }
 
-    // Increment the meals_analyzed count
+    // Decrement the remaining_analyses count
     const { error: updateError } = await supabaseClient
       .from('subscriptions')
-      .update({ meals_analyzed: subscription.meals_analyzed + 1 })
+      .update({ remaining_analyses: subscription.remaining_analyses - 1 })
       .eq('user_id', user_id)
 
     if (updateError) {
-      console.error('Error updating meals_analyzed:', updateError)
+      console.error('Error updating remaining_analyses:', updateError)
       return new Response(
-        JSON.stringify({ error: 'Error updating meal analysis count' }),
+        JSON.stringify({ error: 'Error updating analysis count' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

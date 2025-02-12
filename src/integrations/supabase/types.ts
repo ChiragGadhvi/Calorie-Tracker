@@ -45,37 +45,25 @@ export type Database = {
       subscriptions: {
         Row: {
           created_at: string
-          current_period_end: string | null
-          current_period_start: string | null
           id: string
           meals_analyzed: number
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          tier: Database["public"]["Enums"]["subscription_tier"]
+          remaining_analyses: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
           id?: string
           meals_analyzed?: number
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: Database["public"]["Enums"]["subscription_tier"]
+          remaining_analyses?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
           id?: string
           meals_analyzed?: number
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: Database["public"]["Enums"]["subscription_tier"]
+          remaining_analyses?: number | null
           updated_at?: string
           user_id?: string
         }

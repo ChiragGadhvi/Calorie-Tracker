@@ -17,56 +17,37 @@ const Scan = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSubscriptionLimit = async () => {
+    const checkLimit = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data: subscription, error } = await supabase
           .from('subscriptions')
-          .select('tier, meals_analyzed')
+          .select('remaining_analyses')
           .eq('user_id', user.id)
           .single();
 
         if (error) throw error;
 
-        const limits = {
-          free: 1,
-          pro: 3,
-          pro_plus: 5
-        };
-
-        const limit = limits[subscription.tier as keyof typeof limits];
-        if (subscription.meals_analyzed >= limit) {
+        if (subscription.remaining_analyses <= 0) {
           setHasReachedLimit(true);
           toast({
-            title: "Subscription Limit Reached",
-            description: `You've used ${subscription.meals_analyzed}/${limit} meal analyses on your ${subscription.tier} plan. Upgrade to analyze more meals!`,
+            title: "Analysis Limit Reached",
+            description: `You've used all your available meal analyses. Each user gets 3 free analyses for testing.`,
             duration: 6000,
-            action: (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate('/profile')}
-                className="mt-2"
-              >
-                Upgrade Plan
-              </Button>
-            ),
           });
-          // Immediately redirect to home page if limit is reached
           navigate('/');
           return;
         }
       } catch (error) {
-        console.error('Error checking subscription limit:', error);
+        console.error('Error checking analysis limit:', error);
       }
     };
 
-    checkSubscriptionLimit();
+    checkLimit();
   }, [toast, navigate]);
 
-  // If limit is reached, don't render anything as we're redirecting
   if (hasReachedLimit) {
     return null;
   }
@@ -92,22 +73,12 @@ const Scan = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 403 && data.error === 'Meal analysis limit reached') {
+        if (response.status === 403 && data.error === 'No analyses remaining') {
           setHasReachedLimit(true);
           toast({
-            title: "Subscription Limit Reached",
-            description: `You've used ${data.current}/${data.limit} meal analyses on your ${data.tier} plan. Upgrade to analyze more meals!`,
+            title: "Analysis Limit Reached",
+            description: `You've used all your available meal analyses. Each user gets 3 free analyses for testing.`,
             duration: 6000,
-            action: (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate('/profile')}
-                className="mt-2"
-              >
-                Upgrade Plan
-              </Button>
-            ),
           });
           navigate('/');
           return null;
@@ -157,7 +128,7 @@ const Scan = () => {
       const publicUrl = urlData.publicUrl;
       const analysis = await analyzeMeal(imageData);
       
-      if (!analysis) return; // Analysis failed (e.g., due to subscription limits)
+      if (!analysis) return;
 
       const { error: insertError } = await supabase
         .from('meals')
