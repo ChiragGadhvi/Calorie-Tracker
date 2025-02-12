@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,7 +19,6 @@ interface Meal {
   name: string;
   description: string;
   created_at: string;
-  user_id: string;
 }
 
 interface Subscription {
@@ -40,64 +39,12 @@ const Index = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [streak, setStreak] = useState(5);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user?.user_metadata?.avatar_url) {
-        setAvatarUrl(user.user_metadata.avatar_url);
-      }
-
-      // Fetch subscription data
-      if (user) {
-        console.log('Fetching subscription for user:', user.id);
-        const { data: subscriptionData, error } = await supabase
-          .from('subscriptions')
-          .select('tier, meals_analyzed')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching subscription:', error);
-          toast({
-            title: "Error loading subscription",
-            description: "There was a problem loading your subscription details.",
-            variant: "destructive",
-          });
-        } else {
-          console.log('Subscription data:', subscriptionData);
-          setSubscription(subscriptionData);
-          
-          // Show upgrade notification if limit is reached
-          const tierInfo = getTierInfo(subscriptionData.tier);
-          if (subscriptionData.meals_analyzed >= tierInfo.limit) {
-            toast({
-              title: "Meal Analysis Limit Reached",
-              description: `You've used ${subscriptionData.meals_analyzed}/${tierInfo.limit} meal analyses on your ${tierInfo.name}. Upgrade your plan to analyze more meals!`,
-              duration: 5000,
-              action: (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigate('/profile')}
-                  className="mt-2"
-                >
-                  Upgrade Plan
-                </Button>
-              ),
-            });
-          }
-        }
-      }
-    };
-    getUser();
-  }, [toast, navigate]);
 
   const fetchMeals = async () => {
     try {
@@ -122,10 +69,106 @@ const Index = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchMeals();
-    }
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user?.user_metadata?.avatar_url) {
+        setAvatarUrl(user.user_metadata.avatar_url);
+      }
+
+      if (user) {
+        console.log('Fetching subscription for user:', user.id);
+        const { data: subscriptionData, error } = await supabase
+          .from('subscriptions')
+          .select('tier, meals_analyzed')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching subscription:', error);
+          toast({
+            title: "Error loading subscription",
+            description: "There was a problem loading your subscription details.",
+            variant: "destructive",
+          });
+        } else {
+          console.log('Subscription data:', subscriptionData);
+          setSubscription(subscriptionData);
+        }
+      }
+    };
+    getUser();
+  }, [toast]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    fetchMeals();
+
+    const channel = supabase
+      .channel('meals-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'meals',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          console.log('Meals changed, fetching updates...');
+          fetchMeals();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
+
+  const handleUpgrade = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to upgrade your plan.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await fetch('https://pieymelbjcvhxcnonpms.supabase.co/functions/v1/create-stripe-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+        body: JSON.stringify({
+          tier: 'pro',
+          user_id: user.id,
+        }),
+      });
+
+      const { url, error } = await response.json();
+      
+      if (error) {
+        throw new Error(error);
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
@@ -197,7 +240,7 @@ const Index = () => {
                 {subscription.meals_analyzed >= getTierInfo(subscription.tier).limit && (
                   <Button 
                     className="w-full mt-4"
-                    onClick={() => navigate('/profile')}
+                    onClick={handleUpgrade}
                   >
                     Upgrade Plan
                   </Button>
