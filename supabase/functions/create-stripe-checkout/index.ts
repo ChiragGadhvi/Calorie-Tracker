@@ -18,12 +18,27 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { tier, user_id } = await req.json()
+    // Get the token from the request headers
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
+    // Get the user from Supabase auth
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
+    
+    if (userError || !user) {
+      throw new Error('Invalid user token')
+    }
+
+    const { tier } = await req.json()
 
     // Define prices based on tier
     const prices = {
@@ -48,21 +63,22 @@ serve(async (req) => {
       mode: 'subscription',
       success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/payment-cancelled`,
-      customer_email: (await supabaseClient.auth.admin.getUserById(user_id)).data.user?.email,
+      customer_email: user.email,
       metadata: {
-        user_id,
+        user_id: user.id,
         tier,
       },
     })
 
     return new Response(
-      JSON.stringify({ sessionId: session.id, url: session.url }),
+      JSON.stringify({ url: session.url }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
     )
   } catch (error) {
+    console.error('Error creating checkout session:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
