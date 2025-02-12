@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
@@ -133,6 +132,21 @@ const Index = () => {
   const calorieGoal = 2000;
   const proteinGoal = 150;
 
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
       <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
@@ -155,7 +169,7 @@ const Index = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/profile')}
+            onClick={handleSignOut}
             className="text-gray-600 hover:text-gray-900"
           >
             <LogOut className="h-4 w-4" />

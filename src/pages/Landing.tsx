@@ -1,57 +1,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, UtensilsCrossed, Check } from 'lucide-react';
+import { ArrowRight, UtensilsCrossed } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import Auth from './Auth';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const PricingCard = ({ 
-  tier, 
-  price, 
-  meals, 
-  isPopular 
-}: { 
-  tier: string; 
-  price: string; 
-  meals: number;
-  isPopular?: boolean;
-}) => (
-  <div className={`rounded-lg p-6 ${isPopular ? 'bg-primary text-white ring-2 ring-primary' : 'bg-white'}`}>
-    <h3 className="text-xl font-semibold mb-2">{tier}</h3>
-    <p className="text-3xl font-bold mb-4">
-      {price} <span className="text-sm font-normal">/month</span>
-    </p>
-    <ul className="space-y-3 mb-6">
-      <li className="flex items-center gap-2">
-        <Check className="h-4 w-4 flex-shrink-0" />
-        <span>Analyze up to {meals} meals per day</span>
-      </li>
-      <li className="flex items-center gap-2">
-        <Check className="h-4 w-4 flex-shrink-0" />
-        <span>Nutritional insights</span>
-      </li>
-      <li className="flex items-center gap-2">
-        <Check className="h-4 w-4 flex-shrink-0" />
-        <span>Progress tracking</span>
-      </li>
-    </ul>
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button 
-          className={`w-full ${isPopular ? 'bg-white text-primary hover:bg-gray-100' : ''}`}
-          variant={isPopular ? 'outline' : 'default'}
-        >
-          Get Started
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <Auth />
-      </DialogContent>
-    </Dialog>
-  </div>
-);
 
 const Landing = () => {
   const isMobile = useIsMobile();
@@ -72,26 +25,21 @@ const Landing = () => {
             <p className="text-lg sm:text-xl text-gray-600 max-w-xl mx-auto px-4 leading-relaxed">
               Track your nutrition effortlessly. Just snap a photo of your meal and let our AI handle the rest.
             </p>
-          </div>
-        </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-          <PricingCard 
-            tier="Free" 
-            price="$0" 
-            meals={1}
-          />
-          <PricingCard 
-            tier="Pro" 
-            price="$9.99" 
-            meals={3}
-            isPopular
-          />
-          <PricingCard 
-            tier="Pro Plus" 
-            price="$19.99" 
-            meals={5}
-          />
+            <div className="flex justify-center">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="text-lg">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <Auth />
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 text-center max-w-4xl mx-auto">
