@@ -5,7 +5,7 @@
 ![Pizza](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3I4M2l4bWR6M3ZyYTR2YXkwcW5rajlzNjE2aTRvN3EzaGQ3MG40bCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l4dqF0Aw5S8xXKHP5j/giphy.gif)
 
 
-Using Calorie Tracker answers that question
+### Using Calorie Tracker answers that question
 
 ![Pizza](https://media.giphy.com/media/LZfZXcFNOOzw4/giphy.gif?cid=790b7611i8bx8s399guytypo32dhwmc1bq5dp053lhag5cqy&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
@@ -31,7 +31,7 @@ Using Calorie Tracker answers that question
 3. **Set Your Goals**: Decide on your monthly targets, whether it’s losing weight or building muscle.
 4. **Track Progress**: View your progress charts and stay motivated with reminders and community support.
 
-Joey Eating Sandwich  
+### Joey Eating Sandwich  
 
 ![Pizza](https://media.giphy.com/media/jp3MWN8oy32VydTtCI/giphy.gif?cid=790b7611z6g7kylswsl0fnff6p4skrfqaqcc0isk62wgmntx&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
@@ -85,7 +85,7 @@ Joey Smiling
 - **Memes**: Included above for morale.
 - **Sanity**: Optional. We lost ours around commit #47.
 
-Joey Laughing  
+### Joey Laughing  
 
 ![Pizza](https://media.giphy.com/media/l3vRbjXElHUpZMxwc/giphy.gif?cid=790b7611z6g7kylswsl0fnff6p4skrfqaqcc0isk62wgmntx&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
