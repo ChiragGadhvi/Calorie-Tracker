@@ -1,7 +1,16 @@
 # Welcome to Calorie Tracker: Your AI-Powered Nutrition Buddy
 
-Joey Eating Pizza  
+### Joey ever wonder how many calories pizza has?
+
+![Pizza](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3I4M2l4bWR6M3ZyYTR2YXkwcW5rajlzNjE2aTRvN3EzaGQ3MG40bCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l4dqF0Aw5S8xXKHP5j/giphy.gif)
+
+
+Using Calorie Tracker answers that question
+
+![Pizza](https://media.giphy.com/media/LZfZXcFNOOzw4/giphy.gif?cid=790b7611i8bx8s399guytypo32dhwmc1bq5dp053lhag5cqy&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+
 *Joey Tribbiani approves this message.*
+
 
 ---
 
@@ -23,6 +32,9 @@ Joey Eating Pizza
 4. **Track Progress**: View your progress charts and stay motivated with reminders and community support.
 
 Joey Eating Sandwich  
+
+![Pizza](https://media.giphy.com/media/WtayratDiPeYF6mMA5/giphy.gif?cid=790b7611z6g7kylswsl0fnff6p4skrfqaqcc0isk62wgmntx&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+
 *Joey’s eating habits are not recommended, but we love him anyway.*
 
 ---
@@ -74,6 +86,10 @@ Joey Smiling
 - **Sanity**: Optional. We lost ours around commit #47.
 
 Joey Laughing  
+
+![Pizza](https://media.giphy.com/media/fVDiOuzyQfYCywSice/giphy.gif?cid=ecf05e475ldcy7jsfu5kdw5qouo8ug72u5ehpqz01ken09fb&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+
+
 *Deployed to prod on Friday... send pizza.*
 
 ---
