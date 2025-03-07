@@ -33,7 +33,7 @@ Using Calorie Tracker answers that question
 
 Joey Eating Sandwich  
 
-![Pizza](https://media.giphy.com/media/WtayratDiPeYF6mMA5/giphy.gif?cid=790b7611z6g7kylswsl0fnff6p4skrfqaqcc0isk62wgmntx&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![Pizza](https://media.giphy.com/media/jp3MWN8oy32VydTtCI/giphy.gif?cid=790b7611z6g7kylswsl0fnff6p4skrfqaqcc0isk62wgmntx&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
 *Joey’s eating habits are not recommended, but we love him anyway.*
 
@@ -62,8 +62,8 @@ Joey Smiling
 ### Want to Contribute?
 1. Clone this bad boy:
    ```bash
-   git clone [your-repo-url]
-   cd [your-repo-name]
+   git clone https://github.com/ChiragGadhvi/Calorie-Tracker.git
+   cd Calorie-Tracker
    ```
 2. Fire up the dev server:
    ```bash
@@ -87,7 +87,7 @@ Joey Smiling
 
 Joey Laughing  
 
-![Pizza](https://media.giphy.com/media/fVDiOuzyQfYCywSice/giphy.gif?cid=ecf05e475ldcy7jsfu5kdw5qouo8ug72u5ehpqz01ken09fb&ep=v1_gifs_search&rid=giphy.gif&ct=g)
+![Pizza](https://media.giphy.com/media/l3vRbjXElHUpZMxwc/giphy.gif?cid=790b7611z6g7kylswsl0fnff6p4skrfqaqcc0isk62wgmntx&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 
 
 *Deployed to prod on Friday... send pizza.*
