@@ -1,5 +1,3 @@
----
-
 # Welcome to Calorie Tracker: Your AI-Powered Nutrition Buddy
 
 Joey Eating Pizza  
@@ -45,7 +43,7 @@ Got a joke, a bug fix, or a spare pizza slice? Fork this repo and send a PR. We�
 ---
 
 Joey Smiling  
-*Made with ❤️, sweat, and a questionable amount of pizza by [Your Name] on March 07, 2025.*
+*Made with ❤️, sweat, and a questionable amount of pizza by Chirag Gadhvi on March 07, 2025.*
 
 ---
 
