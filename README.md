@@ -1,69 +1,81 @@
-# Welcome to your Lovable project
+---
 
-## Project info
+# Welcome to Calorie Tracker: Your AI-Powered Nutrition Buddy
 
-**URL**: https://lovable.dev/projects/d11b49fb-b5ae-4bfd-8105-13824a20fd93
+Joey Eating Pizza  
+*Joey Tribbiani approves this message.*
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## What’s Inside?
 
-**Use Lovable**
+- **AI Food Analysis**: Snap a photo of your meal, and our AI will analyze the calories, protein, carbs, and more. No more guessing!
+- **Personalized Nutrition Insights**: Get detailed breakdowns of your daily intake to help you make informed choices.
+- **Monthly Goal Tracking**: Set and track your monthly goals for weight loss, muscle gain, or maintenance. Stay motivated with progress charts and reminders.
+- **User Profile & Login**: Securely log in to access your personalized dashboard, track your progress, and sync across devices.
+- **Community Sharing**: Share your progress, exchange recipes, and get support from fellow users.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d11b49fb-b5ae-4bfd-8105-13824a20fd93) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## How It Works
 
-**Use your preferred IDE**
+1. **Snap Your Meal**: Use our app to take a photo of your food. Our AI will do the rest!
+2. **Get Nutrition Insights**: Receive detailed nutrition facts, including calories, protein, carbs, and fat content.
+3. **Set Your Goals**: Decide on your monthly targets, whether it’s losing weight or building muscle.
+4. **Track Progress**: View your progress charts and stay motivated with reminders and community support.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Joey Eating Sandwich  
+*Joey’s eating habits are not recommended, but we love him anyway.*
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Features You’ll Love
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **AI-Powered Meal Recognition**: Our AI can identify a wide variety of foods, from pizza to salads.
+- **Customizable Goals**: Set specific targets for calories, protein, or other nutrients.
+- **Monthly Progress Reports**: Get a summary of your progress at the end of each month to stay on track.
+- **Recipe Suggestions**: Receive personalized meal ideas based on your dietary preferences and goals.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Join the Fun
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Got a joke, a bug fix, or a spare pizza slice? Fork this repo and send a PR. We’ll trade you a virtual high-five and a shoutout in our next pizza party.
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Joey Smiling  
+*Made with ❤️, sweat, and a questionable amount of pizza by [Your Name] on March 07, 2025.*
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Want to Contribute?
+1. Clone this bad boy:
+   ```bash
+   git clone [your-repo-url]
+   cd [your-repo-name]
+   ```
+2. Fire up the dev server:
+   ```bash
+   npm run dev  # For the npm normies
+   # or
+   yarn dev    # For the yarn hipsters
+   # or
+   pnpm dev    # For the efficiency freaks
+   # or
+   bun dev     # For the bun-ny rabbits
+   ```
+3. Open [http://localhost:3000](http://localhost:3000) in your browser and enjoy!
 
-## What technologies are used for this project?
+---
 
-This project is built with .
+### Bonus: Developer Survival Kit
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Pizza**: Mandatory. Because coding without pizza is like coding without a keyboard.
+- **Memes**: Included above for morale.
+- **Sanity**: Optional. We lost ours around commit #47.
 
-## How can I deploy this project?
+Joey Laughing  
+*Deployed to prod on Friday... send pizza.*
 
-Simply open [Lovable](https://lovable.dev/projects/d11b49fb-b5ae-4bfd-8105-13824a20fd93) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+---
