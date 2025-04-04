@@ -174,11 +174,11 @@ const Index = () => {
   const TOTAL_ANALYSES = 2;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div className="min-h-screen bg-background pb-20">
+      <div className="fixed top-0 left-0 right-0 bg-secondary border-b border-border z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
+            <Avatar className="h-10 w-10 border-2 border-primary/20">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt="Profile" />
               ) : (
@@ -188,25 +188,25 @@ const Index = () => {
               )}
             </Avatar>
             <div className="text-left">
-              <p className="text-sm font-medium">Hello,</p>
-              <p className="text-xs text-gray-600">{user?.email?.split('@')[0]}</p>
+              <p className="text-sm font-medium text-white">Hello,</p>
+              <p className="text-xs text-gray-400">{user?.email?.split('@')[0]}</p>
             </div>
           </div>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleSignOut}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-400 hover:text-white hover:bg-muted"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 pt-16 pb-4">
+      <div className="max-w-4xl mx-auto px-4 pt-20 pb-4">
         <div className="space-y-6">
           {subscription && (
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -214,8 +214,8 @@ const Index = () => {
                       <Award className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Remaining Analyses</p>
-                      <p className="text-lg font-semibold">
+                      <p className="text-sm text-gray-400">Remaining Analyses</p>
+                      <p className="text-lg font-semibold text-white">
                         {subscription.remaining_analyses}/{TOTAL_ANALYSES}
                         {subscription.remaining_analyses === 0 && (
                           <span className="ml-2 text-sm text-gray-500">
@@ -231,36 +231,36 @@ const Index = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-full">
                   <Award className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Current Streak</p>
-                  <p className="text-lg font-semibold">{streak} days</p>
+                  <p className="text-sm text-gray-400">Current Streak</p>
+                  <p className="text-lg font-semibold text-white">{streak} days</p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-full">
-                  <Utensils className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-green-800/30 rounded-full">
+                  <Utensils className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Today's Meals</p>
-                  <p className="text-lg font-semibold">{todaysMeals.length}</p>
+                  <p className="text-sm text-gray-400">Today's Meals</p>
+                  <p className="text-lg font-semibold text-white">{todaysMeals.length}</p>
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
+            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-blue-800/30 rounded-full">
+                  <TrendingUp className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Weekly Average</p>
-                  <p className="text-lg font-semibold">{Math.round(totalCalories / 7)} cal</p>
+                  <p className="text-sm text-gray-400">Weekly Average</p>
+                  <p className="text-lg font-semibold text-white">{Math.round(totalCalories / 7)} cal</p>
                 </div>
               </CardContent>
             </Card>

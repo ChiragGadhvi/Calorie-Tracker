@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,20 +26,20 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#222222", // Dark gray
+          DEFAULT: "#FF7B54", // Coral orange
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#555555", // Medium gray
+          DEFAULT: "#111111", // Very dark gray
           foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#888888", // Light gray
-          foreground: "#FFFFFF",
+          DEFAULT: "#A8E890", // Light green
+          foreground: "#111111",
         },
         muted: {
-          DEFAULT: "#F1F1F1", // Very light gray
-          foreground: "#222222",
+          DEFAULT: "#202020", // Dark gray
+          foreground: "#FFFFFF",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -52,6 +53,28 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Add nutrition-specific colors
+        calories: {
+          DEFAULT: "#1F1F1F", // Dark charcoal
+          foreground: "#FFFFFF",
+        },
+        protein: {
+          DEFAULT: "#A8E890", // Light green
+          foreground: "#111111",
+        },
+        carbs: {
+          DEFAULT: "#C8A4D4", // Light purple
+          foreground: "#111111",
+        },
+        fat: {
+          DEFAULT: "#FFD766", // Light yellow
+          foreground: "#111111",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {
@@ -67,8 +90,12 @@ export default {
           "100%": { opacity: "1" },
         },
         slideUp: {
-          "0%": { transform: "translateY(100px)", opacity: "0" },
+          "0%": { transform: "translateY(20px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        pulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
         },
       },
       animation: {
@@ -76,6 +103,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         fadeIn: "fadeIn 0.5s ease-out",
         slideUp: "slideUp 0.5s ease-out",
+        pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

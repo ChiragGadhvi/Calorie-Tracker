@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Upload } from 'lucide-react';
+import { Camera, Upload, Barcode, Tag, BookOpen, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import CameraComponent from '@/components/Camera';
@@ -178,47 +178,126 @@ const Scan = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
-      <div className="max-w-4xl mx-auto px-4 pt-6">
-        <h1 className="text-2xl font-bold text-center mb-8">Add Meal</h1>
-        
-        <div className="flex flex-col gap-4">
-          <Button
-            onClick={() => setShowCamera(true)}
-            className="h-16 bg-primary text-white hover:bg-primary/90"
-            disabled={isAnalyzing || hasReachedLimit}
-          >
-            <Camera className="mr-2 h-6 w-6" /> Take Photo
-          </Button>
+    <div className="min-h-screen bg-background">
+      {showCamera ? (
+        <div className="relative min-h-screen bg-black pb-20">
+          <div className="absolute top-4 left-4 z-20">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full bg-black/30 text-white hover:bg-black/50"
+              onClick={() => setShowCamera(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="pt-12 pb-4 px-4">
+            <h1 className="text-2xl font-bold text-white text-center">Scanner</h1>
+          </div>
           
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            className="h-16 bg-white"
-            disabled={isAnalyzing || hasReachedLimit}
-          >
-            <Upload className="mr-2 h-6 w-6" /> Upload Image
-          </Button>
+          <div className="flex flex-col items-center justify-center h-[60vh]">
+            <div className="camera-frame">
+              <div className="camera-corner camera-corner-tl"></div>
+              <div className="camera-corner camera-corner-tr"></div>
+              <div className="camera-corner camera-corner-bl"></div>
+              <div className="camera-corner camera-corner-br"></div>
+            </div>
+          </div>
           
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={hasReachedLimit}
-          />
+          <div className="fixed bottom-20 left-0 right-0">
+            <div className="grid grid-cols-4 gap-4 px-4">
+              <div className="flex flex-col items-center">
+                <Button 
+                  className="w-16 h-16 rounded-2xl bg-accent text-secondary"
+                  disabled={isAnalyzing}
+                >
+                  <Camera className="h-6 w-6" />
+                </Button>
+                <span className="text-xs text-white mt-2">Scan food</span>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <Button 
+                  variant="outline"
+                  className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border-white/20 text-white"
+                  disabled={isAnalyzing}
+                >
+                  <Barcode className="h-6 w-6" />
+                </Button>
+                <span className="text-xs text-white mt-2">Barcode</span>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <Button 
+                  variant="outline"
+                  className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border-white/20 text-white"
+                  disabled={isAnalyzing}
+                >
+                  <Tag className="h-6 w-6" />
+                </Button>
+                <span className="text-xs text-white mt-2">Food label</span>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <Button 
+                  variant="outline"
+                  className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border-white/20 text-white"
+                  disabled={isAnalyzing}
+                >
+                  <BookOpen className="h-6 w-6" />
+                </Button>
+                <span className="text-xs text-white mt-2">Library</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-center mt-8">
+              <Button 
+                className="w-14 h-14 rounded-full bg-primary shadow-lg"
+                onClick={() => handleCapture("mock-camera-data")}
+                disabled={isAnalyzing}
+              >
+                <Camera className="h-6 w-6" />
+              </Button>
+            </div>
+          </div>
+          
+          <Navigation />
         </div>
-      </div>
-
-      {showCamera && !hasReachedLimit && (
-        <CameraComponent
-          onCapture={handleCapture}
-          onClose={() => setShowCamera(false)}
-        />
+      ) : (
+        <div className="max-w-4xl mx-auto px-4 pt-6 pb-20">
+          <h1 className="text-2xl font-bold text-white text-center mb-8">Add Meal</h1>
+          
+          <div className="flex flex-col gap-4">
+            <Button
+              onClick={() => setShowCamera(true)}
+              className="h-16 button-gradient rounded-xl text-white shadow-md"
+              disabled={isAnalyzing || hasReachedLimit}
+            >
+              <Camera className="mr-2 h-6 w-6" /> Take Photo
+            </Button>
+            
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              className="h-16 bg-secondary/50 text-white border-white/10 rounded-xl"
+              disabled={isAnalyzing || hasReachedLimit}
+            >
+              <Upload className="mr-2 h-6 w-6" /> Upload Image
+            </Button>
+            
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={hasReachedLimit}
+            />
+          </div>
+          
+          <Navigation />
+        </div>
       )}
-      
-      <Navigation />
     </div>
   );
 };

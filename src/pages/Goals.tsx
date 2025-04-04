@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Target, Dumbbell, Clock, Calendar, TrendingUp, Award, Utensils, Activity } from 'lucide-react';
+import { ChevronLeft, Flame, Dumbbell, Droplet, Coffee, TrendingUp, Award, Utensils, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -22,7 +22,7 @@ const Goals = () => {
 
   const currentGoals = React.useMemo(() => {
     const saved = localStorage.getItem('goals');
-    return saved ? JSON.parse(saved) : { calories: 2000, protein: 150 };
+    return saved ? JSON.parse(saved) : { calories: 2000, protein: 150, carbs: 200, fat: 50 };
   }, []);
 
   // Calculate progress (example values)
@@ -31,136 +31,77 @@ const Goals = () => {
   const streakDays = 7;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
-      <div className="max-w-4xl mx-auto p-4">
-        <div className="flex items-center mb-6">
-          <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold ml-2">Your Health Goals</h1>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="bg-secondary py-6 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center mb-2">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="text-white mr-2">
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <h1 className="text-xl font-bold text-white">Adjust goals</h1>
+          </div>
+          <p className="text-sm text-gray-400">Calories, carbs, fats, and protein</p>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto p-4 space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="nutrition-card bg-calories">
+            <Flame className="nutrition-card-icon h-5 w-5" />
+            <h2 className="mt-8 text-3xl font-bold">{currentGoals.calories}</h2>
+            <p className="text-sm text-gray-400">Calorie goal</p>
+          </div>
+          
+          <div className="nutrition-card bg-protein">
+            <Dumbbell className="nutrition-card-icon h-5 w-5" />
+            <h2 className="mt-8 text-3xl font-bold text-secondary">{currentGoals.protein}</h2>
+            <p className="text-sm text-gray-600">Protein goal</p>
+          </div>
+          
+          <div className="nutrition-card bg-carbs">
+            <Coffee className="nutrition-card-icon h-5 w-5" />
+            <h2 className="mt-8 text-3xl font-bold text-secondary">{currentGoals.carbs}</h2>
+            <p className="text-sm text-gray-600">Carb goal</p>
+          </div>
+          
+          <div className="nutrition-card bg-fat">
+            <Droplet className="nutrition-card-icon h-5 w-5" />
+            <h2 className="mt-8 text-3xl font-bold text-secondary">{currentGoals.fat}</h2>
+            <p className="text-sm text-gray-600">Fat goal</p>
+          </div>
         </div>
 
-        {/* Progress Overview */}
-        <Card className="mb-6 bg-white/80 backdrop-blur-sm">
+        <Button 
+          className="w-full py-6 rounded-xl button-gradient shadow-md font-semibold"
+          onClick={() => {
+            toast({
+              title: "Goals auto-generated",
+              description: "We've calculated optimal nutrition goals based on your profile.",
+            });
+          }}
+        >
+          Auto generate goals
+        </Button>
+
+        <Card className="bg-secondary border-border shadow-sm mt-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Today's Progress
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Utensils className="h-5 w-5" />
+              Update Your Goals
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Calories</span>
-                  <span className="text-sm text-gray-500">{caloriesProgress}%</span>
-                </div>
-                <Progress value={caloriesProgress} className="h-2 bg-[#F2FCE2] [&>div]:bg-green-500" />
-              </div>
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Protein</span>
-                  <span className="text-sm text-gray-500">{proteinProgress}%</span>
-                </div>
-                <Progress value={proteinProgress} className="h-2 bg-[#F2FCE2] [&>div]:bg-green-600" />
-              </div>
-            </div>
+            <GoalsForm
+              onSave={handleSaveGoals}
+              currentCalories={currentGoals.calories}
+              currentProtein={currentGoals.protein}
+            />
           </CardContent>
         </Card>
-
-        <div className="grid gap-6 mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <Target className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Daily Calories</p>
-                  <p className="text-lg font-semibold">{currentGoals.calories} kcal</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-full">
-                  <Dumbbell className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Daily Protein</p>
-                  <p className="text-lg font-semibold">{currentGoals.protein}g</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-full">
-                  <Award className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Current Streak</p>
-                  <p className="text-lg font-semibold">{streakDays} days</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-full">
-                  <Activity className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Activity Level</p>
-                  <p className="text-lg font-semibold">Moderate</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="bg-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Utensils className="h-5 w-5" />
-                Update Your Goals
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <GoalsForm
-                onSave={handleSaveGoals}
-                currentCalories={currentGoals.calories}
-                currentProtein={currentGoals.protein}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Tips Section */}
-          <Card className="bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">Health Tips</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-gray-600">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Stay hydrated by drinking at least 8 glasses of water daily
-                </li>
-                <li className="flex items-center gap-2 text-sm text-gray-600">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Include protein in every meal to maintain muscle mass
-                </li>
-                <li className="flex items-center gap-2 text-sm text-gray-600">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Aim for 7-9 hours of quality sleep each night
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
       </div>
+
       <Navigation />
     </div>
   );

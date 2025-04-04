@@ -71,7 +71,7 @@ const Navigation = () => {
   };
 
   const isActive = (path: string) => {
-    return location.pathname === path ? "text-primary ring-2 ring-primary rounded-full" : "text-gray-600";
+    return location.pathname === path;
   };
 
   return (
@@ -86,43 +86,42 @@ const Navigation = () => {
         />
       )}
       
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex justify-around py-2">
-            <Link to="/" className="flex flex-col items-center p-2">
-              <div className={`p-2 ${isActive('/')}`}>
-                <Home className="h-5 w-5" />
-              </div>
-              <span className="text-xs mt-1">Home</span>
+      <div className="fixed bottom-0 left-0 right-0 bg-secondary border-t border-border z-10">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-around py-3">
+            <Link to="/" className={`bottom-tab ${isActive('/') ? 'bottom-tab-active' : 'text-gray-400'}`}>
+              <Home className="bottom-tab-icon mb-1" />
+              <span className="text-xs">Home</span>
             </Link>
-            <Link to="/goals" className="flex flex-col items-center p-2">
-              <div className={`p-2 ${isActive('/goals')}`}>
-                <Target className="h-5 w-5" />
-              </div>
-              <span className="text-xs mt-1">Goals</span>
+            
+            <Link to="/goals" className={`bottom-tab ${isActive('/goals') ? 'bottom-tab-active' : 'text-gray-400'}`}>
+              <Target className="bottom-tab-icon mb-1" />
+              <span className="text-xs">Goals</span>
             </Link>
-            <div className="flex flex-col items-center p-2">
+            
+            <div className="relative -mt-5">
               <button
                 onClick={handleScanClick}
-                className={`p-2 cursor-pointer ${isActive('/scan')} ${hasReachedLimit ? 'opacity-50' : ''}`}
+                className={`rounded-full p-4 ${hasReachedLimit ? 'bg-gray-500' : 'bg-primary'} text-white shadow-lg transition-transform hover:scale-105`}
                 disabled={hasReachedLimit}
-                aria-disabled={hasReachedLimit}
               >
-                <Camera className={`h-5 w-5 ${hasReachedLimit ? 'text-gray-400' : ''}`} />
+                <Camera className="h-6 w-6" />
               </button>
-              <span className="text-xs mt-1">Scan {hasReachedLimit ? '(Completed)' : ''}</span>
+              {hasReachedLimit && (
+                <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">
+                  Completed
+                </span>
+              )}
             </div>
-            <Link to="/history" className="flex flex-col items-center p-2">
-              <div className={`p-2 ${isActive('/history')}`}>
-                <History className="h-5 w-5" />
-              </div>
-              <span className="text-xs mt-1">History</span>
+            
+            <Link to="/history" className={`bottom-tab ${isActive('/history') ? 'bottom-tab-active' : 'text-gray-400'}`}>
+              <History className="bottom-tab-icon mb-1" />
+              <span className="text-xs">History</span>
             </Link>
-            <Link to="/profile" className="flex flex-col items-center p-2">
-              <div className={`p-2 ${isActive('/profile')}`}>
-                <User className="h-5 w-5" />
-              </div>
-              <span className="text-xs mt-1">Profile</span>
+            
+            <Link to="/profile" className={`bottom-tab ${isActive('/profile') ? 'bottom-tab-active' : 'text-gray-400'}`}>
+              <User className="bottom-tab-icon mb-1" />
+              <span className="text-xs">Profile</span>
             </Link>
           </div>
         </div>
