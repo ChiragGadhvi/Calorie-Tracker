@@ -174,38 +174,42 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="fixed top-0 left-0 right-0 bg-secondary border-b border-border z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-primary/20">
-              {avatarUrl ? (
-                <AvatarImage src={avatarUrl} alt="Profile" />
-              ) : (
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  {user?.email?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              )}
-            </Avatar>
-            <div className="text-left">
-              <p className="text-sm font-medium text-white">Hello,</p>
-              <p className="text-xs text-gray-400">{user?.email?.split('@')[0]}</p>
+      <div className="bg-secondary py-6 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 border-2 border-primary/20">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt="Profile" />
+                ) : (
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {user?.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="text-left">
+                <p className="text-sm font-medium text-white">Hello,</p>
+                <p className="text-xs text-gray-400">{user?.email?.split('@')[0]}</p>
+              </div>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSignOut}
+              className="text-gray-400 hover:text-white hover:bg-muted"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="text-gray-400 hover:text-white hover:bg-muted"
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <h1 className="text-2xl font-bold text-white mt-4">Today's Summary</h1>
+          <p className="text-sm text-gray-400">Track your nutrition progress</p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 pt-20 pb-4">
+      <div className="max-w-4xl mx-auto px-4 pt-6 pb-4">
         <div className="space-y-6">
           {subscription && (
-            <Card className="card-gradient border-border shadow-md hover:shadow-lg transition-all rounded-xl">
+            <Card className="glass-card border-border shadow-md hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

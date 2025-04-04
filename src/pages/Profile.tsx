@@ -86,11 +86,18 @@ const Profile = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
+      <div className="bg-secondary py-6 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-2xl font-bold text-white">My Profile</h1>
+          <p className="text-sm text-gray-400">{user?.email}</p>
+        </div>
+      </div>
+
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <div className="flex flex-col items-center space-y-6">
-          <div className="relative">
-            <Avatar className="h-24 w-24">
+          <div className="relative mb-4">
+            <Avatar className="h-24 w-24 border-2 border-primary/30">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt="Profile" />
               ) : (
@@ -102,10 +109,10 @@ const Profile = () => {
             <Button
               size="icon"
               variant="outline"
-              className="absolute bottom-0 right-0 rounded-full"
+              className="absolute bottom-0 right-0 rounded-full bg-primary/10 border-primary/30 hover:bg-primary/20"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="h-4 w-4" />
+              <Upload className="h-4 w-4 text-primary" />
             </Button>
             <input
               type="file"
@@ -116,25 +123,17 @@ const Profile = () => {
             />
           </div>
           
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-            <div className="flex items-center justify-center gap-2 text-gray-600">
-              <Mail className="h-4 w-4" />
-              <p>{user?.email}</p>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
             {stats.map(({ icon: Icon, label, value, progress }) => (
-              <Card key={label} className="bg-white shadow-sm hover:shadow-md transition-all">
+              <Card key={label} className="glass-card hover:scale-[1.02] transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 bg-primary/10 rounded-full">
                       <Icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">{label}</p>
-                      <p className="text-lg font-semibold">{value}</p>
+                      <p className="text-sm text-gray-400">{label}</p>
+                      <p className="text-lg font-semibold text-white">{value}</p>
                     </div>
                   </div>
                   <Progress value={progress} className="h-1" />
@@ -144,18 +143,18 @@ const Profile = () => {
           </div>
 
           <div className="w-full space-y-4">
-            <Card>
+            <Card className="glass-card border-border hover:shadow-md transition-all">
               <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
+                <CardTitle className="text-white">Account Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
                   variant="outline"
-                  className="w-full justify-between"
+                  className="w-full justify-between bg-muted hover:bg-muted/80 text-white"
                   onClick={() => navigate('/goals')}
                 >
                   <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
+                    <Target className="h-4 w-4 text-primary" />
                     <span>Goals Settings</span>
                   </div>
                   <ChevronRight className="h-4 w-4" />
@@ -163,10 +162,10 @@ const Profile = () => {
                 
                 <Button
                   variant="outline"
-                  className="w-full justify-between"
+                  className="w-full justify-between bg-muted hover:bg-muted/80 text-white"
                 >
                   <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
+                    <Settings className="h-4 w-4 text-primary" />
                     <span>Preferences</span>
                   </div>
                   <ChevronRight className="h-4 w-4" />
@@ -174,7 +173,7 @@ const Profile = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="w-full justify-start text-destructive hover:text-destructive/80 hover:bg-destructive/10 bg-muted"
                   onClick={handleSignOut}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
@@ -183,20 +182,20 @@ const Profile = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="glass-card border-border hover:shadow-md transition-all">
               <CardHeader>
-                <CardTitle>Achievements</CardTitle>
+                <CardTitle className="text-white">Achievements</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-yellow-100 rounded-full">
-                        <Trophy className="h-5 w-5 text-yellow-600" />
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <Trophy className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">30-Day Streak</p>
-                        <p className="text-sm text-gray-600">Logged meals for 30 consecutive days</p>
+                        <p className="font-medium text-white">30-Day Streak</p>
+                        <p className="text-sm text-gray-400">Logged meals for 30 consecutive days</p>
                       </div>
                     </div>
                     <Progress value={80} className="w-20 h-1" />
@@ -204,12 +203,12 @@ const Profile = () => {
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 rounded-full">
-                        <Target className="h-5 w-5 text-green-600" />
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <Target className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">Goal Crusher</p>
-                        <p className="text-sm text-gray-600">Hit protein goals 10 times</p>
+                        <p className="font-medium text-white">Goal Crusher</p>
+                        <p className="text-sm text-gray-400">Hit protein goals 10 times</p>
                       </div>
                     </div>
                     <Progress value={60} className="w-20 h-1" />
