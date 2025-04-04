@@ -10,7 +10,6 @@ import DailyProgress from '@/components/DailyProgress';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import MealList from '@/components/MealList';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Meal {
   id: string;
@@ -206,7 +205,7 @@ const Index = () => {
       <div className="max-w-4xl mx-auto px-4 pt-20 pb-4">
         <div className="space-y-6">
           {subscription && (
-            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
+            <Card className="card-gradient border-border shadow-md hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -231,74 +230,72 @@ const Index = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <Award className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Current Streak</p>
-                  <p className="text-lg font-semibold text-white">{streak} days</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-green-800/30 rounded-full">
-                  <Utensils className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Today's Meals</p>
-                  <p className="text-lg font-semibold text-white">{todaysMeals.length}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 bg-blue-800/30 rounded-full">
-                  <TrendingUp className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Weekly Average</p>
-                  <p className="text-lg font-semibold text-white">{Math.round(totalCalories / 7)} cal</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="stat-card animate-fadeIn">
+              <div className="stat-icon bg-primary/10">
+                <Award className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Current Streak</p>
+                <p className="text-lg font-semibold text-white">{streak} days</p>
+              </div>
+            </div>
+            <div className="stat-card animate-fadeIn animation-delay-200">
+              <div className="stat-icon bg-accent/30">
+                <Utensils className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Today's Meals</p>
+                <p className="text-lg font-semibold text-white">{todaysMeals.length}</p>
+              </div>
+            </div>
+            <div className="stat-card animate-fadeIn animation-delay-400">
+              <div className="stat-icon bg-blue-500/20">
+                <TrendingUp className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">Weekly Average</p>
+                <p className="text-lg font-semibold text-white">{Math.round(totalCalories / 7)} cal</p>
+              </div>
+            </div>
           </div>
 
-          <DailyProgress
-            totalCalories={totalCalories}
-            totalProtein={totalProtein}
-            calorieGoal={calorieGoal}
-            proteinGoal={proteinGoal}
-          />
+          <div className="animate-fadeIn animation-delay-600">
+            <DailyProgress
+              totalCalories={totalCalories}
+              totalProtein={totalProtein}
+              calorieGoal={calorieGoal}
+              proteinGoal={proteinGoal}
+            />
+          </div>
 
-          <MealList
-            meals={todaysMeals}
-            onDeleteMeal={async (id) => {
-              try {
-                const { error } = await supabase
-                  .from('meals')
-                  .delete()
-                  .eq('id', id);
-                
-                if (error) throw error;
-                
-                fetchMeals();
-                toast({
-                  title: "Meal deleted",
-                  description: "The meal has been removed from your history.",
-                });
-              } catch (error) {
-                toast({
-                  title: "Error deleting meal",
-                  description: "There was a problem deleting the meal.",
-                  variant: "destructive",
-                });
-              }
-            }}
-            onUpdateMeal={fetchMeals}
-          />
+          <div className="animate-fadeIn animation-delay-600">
+            <MealList
+              meals={todaysMeals}
+              onDeleteMeal={async (id) => {
+                try {
+                  const { error } = await supabase
+                    .from('meals')
+                    .delete()
+                    .eq('id', id);
+                  
+                  if (error) throw error;
+                  
+                  fetchMeals();
+                  toast({
+                    title: "Meal deleted",
+                    description: "The meal has been removed from your history.",
+                  });
+                } catch (error) {
+                  toast({
+                    title: "Error deleting meal",
+                    description: "There was a problem deleting the meal.",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              onUpdateMeal={fetchMeals}
+            />
+          </div>
         </div>
       </div>
 

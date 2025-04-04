@@ -43,7 +43,7 @@ const History = () => {
       const { data, error } = await supabase
         .from('meals')
         .select('*')
-        .eq('user_id', user.id)  // Filter by current user's ID
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -64,7 +64,7 @@ const History = () => {
         .from('meals')
         .delete()
         .eq('id', mealId)
-        .eq('user_id', user.id);  // Ensure user can only delete their own meals
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -85,20 +85,20 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20">
-      <div className="max-w-7xl mx-auto p-4">
-        <div className="flex items-center mb-6">
+    <div className="min-h-screen bg-background pb-20">
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="flex items-center mb-6 mt-4">
           <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="text-primary hover:bg-secondary/80">
+              <ChevronLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold ml-2">Meal History</h1>
+          <h1 className="text-2xl font-bold ml-2 text-foreground">Meal History</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
           {meals.map((meal) => (
-            <div key={meal.id} className="w-full">
+            <div key={meal.id} className="w-full animate-fadeIn animation-delay-200">
               <MealCard
                 {...meal}
                 image={meal.image_url}
@@ -109,9 +109,11 @@ const History = () => {
           ))}
           {meals.length === 0 && (
             <div className="col-span-full">
-              <p className="text-center text-gray-500 py-8">
-                No meal history available.
-              </p>
+              <div className="text-center py-12 glass-card rounded-xl px-6">
+                <p className="text-gray-400">
+                  No meal history available.
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -122,4 +124,3 @@ const History = () => {
 };
 
 export default History;
-
