@@ -117,20 +117,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {isSignUp ? 'Create an Account' : 'Welcome Back'}
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
+      <div className="w-full max-w-sm space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white">
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
+          </h1>
+          <p className="mt-2 text-gray-400">
             {isSignUp ? 'Sign up to get started' : 'Sign in to your account'}
           </p>
         </div>
-        <form onSubmit={handleAuth} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm space-y-4">
+
+        <form onSubmit={handleAuth} className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
                 Email
               </label>
               <Input
@@ -140,11 +141,11 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="Enter your email"
-                className="w-full mt-1"
+                className="w-full bg-secondary border-secondary text-white placeholder:text-gray-500 rounded-xl h-12 px-4"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
                 Password
               </label>
               <Input
@@ -154,7 +155,7 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Enter your password"
-                className="w-full mt-1"
+                className="w-full bg-secondary border-secondary text-white placeholder:text-gray-500 rounded-xl h-12 px-4"
                 minLength={6}
               />
               {isSignUp && (
@@ -165,20 +166,24 @@ const Auth = () => {
             </div>
           </div>
 
-          <Button className="w-full" type="submit" disabled={isLoading}>
+          <Button 
+            className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium text-base"
+            type="submit" 
+            disabled={isLoading}
+          >
             {isLoading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
 
           <div className="relative flex items-center justify-center">
-            <div className="w-full border-t border-gray-300"></div>
-            <div className="px-2 text-sm text-gray-500 bg-gray-50">or</div>
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-gray-700"></div>
+            <div className="px-3 text-sm text-gray-500 bg-background">or</div>
+            <div className="w-full border-t border-gray-700"></div>
           </div>
 
           <Button 
             type="button" 
             variant="outline" 
-            className="w-full flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-gray-700 hover:bg-secondary text-white"
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
           >
@@ -194,7 +199,7 @@ const Auth = () => {
                 setEmail('');
                 setPassword('');
               }}
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-primary hover:text-primary/80 hover:underline"
             >
               {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
             </button>

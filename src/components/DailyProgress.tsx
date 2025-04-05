@@ -23,7 +23,7 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
           </div>
           <Progress 
             value={caloriesPercentage} 
-            className="h-2 bg-secondary/50 [&>div]:bg-green-500"
+            className="h-3 bg-muted/70 rounded-full [&>div]:bg-primary"
           />
         </div>
         <div>
@@ -33,7 +33,7 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
           </div>
           <Progress 
             value={proteinPercentage} 
-            className="h-2 bg-secondary/50 [&>div]:bg-green-600"
+            className="h-3 bg-muted/70 rounded-full [&>div]:bg-protein"
           />
         </div>
       </CardContent>
