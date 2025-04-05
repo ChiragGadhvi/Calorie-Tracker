@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Google } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -89,6 +91,31 @@ const Auth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Google sign in error:', error);
+      toast({
+        title: "Google Sign In Error",
+        description: error.message || "An error occurred during Google authentication",
+        variant: "destructive",
+        duration: 5000,
+      });
+      setGoogleLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -140,6 +167,23 @@ const Auth = () => {
 
           <Button className="w-full" type="submit" disabled={isLoading}>
             {isLoading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+          </Button>
+
+          <div className="relative flex items-center justify-center">
+            <div className="w-full border-t border-gray-300"></div>
+            <div className="px-2 text-sm text-gray-500 bg-gray-50">or</div>
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="w-full flex items-center justify-center gap-2"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading}
+          >
+            <Google className="w-5 h-5" />
+            {googleLoading ? 'Loading...' : 'Sign in with Google'}
           </Button>
 
           <div className="text-center">
