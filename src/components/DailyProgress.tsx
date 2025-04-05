@@ -14,26 +14,26 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
   const proteinPercentage = Math.min((totalProtein / proteinGoal) * 100, 100);
 
   return (
-    <Card className="bg-white shadow-sm">
+    <Card className="glass-card border-border shadow-md hover:shadow-lg transition-all rounded-xl">
       <CardContent className="p-6 space-y-6">
         <div>
           <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">Calories</span>
-            <span className="text-sm text-gray-500">{totalCalories} / {calorieGoal} kcal</span>
+            <span className="text-sm font-medium text-white">Calories</span>
+            <span className="text-sm text-gray-400">{totalCalories} / {calorieGoal} kcal</span>
           </div>
           <Progress 
             value={caloriesPercentage} 
-            className="h-2 bg-[#F2FCE2] [&>div]:bg-green-500"
+            className="h-2 bg-secondary/50 [&>div]:bg-green-500"
           />
         </div>
         <div>
           <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">Protein</span>
-            <span className="text-sm text-gray-500">{totalProtein} / {proteinGoal}g</span>
+            <span className="text-sm font-medium text-white">Protein</span>
+            <span className="text-sm text-gray-400">{totalProtein} / {proteinGoal}g</span>
           </div>
           <Progress 
             value={proteinPercentage} 
-            className="h-2 bg-[#F2FCE2] [&>div]:bg-green-600"
+            className="h-2 bg-secondary/50 [&>div]:bg-green-600"
           />
         </div>
       </CardContent>
