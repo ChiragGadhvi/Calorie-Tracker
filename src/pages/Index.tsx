@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
@@ -233,9 +234,9 @@ const Index = () => {
           )}
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="rounded-2xl p-6 bg-secondary border-border">
+            <Card className="rounded-2xl p-6 bg-calories border-border shadow-md hover:shadow-lg transition-all">
               <div className="absolute top-4 right-4">
-                <Award className="h-5 w-5 text-primary/60" />
+                <Award className="h-5 w-5 text-white/60" />
               </div>
               <div className="mt-2 mb-1">
                 <h2 className="text-lg font-semibold text-white">Current Streak</h2>
@@ -243,23 +244,23 @@ const Index = () => {
               </div>
             </Card>
             
-            <Card className="rounded-2xl p-6 bg-secondary border-border">
+            <Card className="rounded-2xl p-6 bg-protein border-border shadow-md hover:shadow-lg transition-all">
               <div className="absolute top-4 right-4">
-                <Utensils className="h-5 w-5 text-accent/60" />
+                <Utensils className="h-5 w-5 text-protein-foreground/60" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-white">Today's Meals</h2>
-                <p className="text-2xl font-bold text-white mt-1">{todaysMeals.length}</p>
+                <h2 className="text-lg font-semibold text-protein-foreground">Today's Meals</h2>
+                <p className="text-2xl font-bold text-protein-foreground mt-1">{todaysMeals.length}</p>
               </div>
             </Card>
             
-            <Card className="rounded-2xl p-6 bg-secondary border-border col-span-2">
+            <Card className="rounded-2xl p-6 bg-carbs border-border shadow-md hover:shadow-lg transition-all col-span-2">
               <div className="absolute top-4 right-4">
-                <TrendingUp className="h-5 w-5 text-blue-500/60" />
+                <TrendingUp className="h-5 w-5 text-carbs-foreground/60" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-white">Weekly Average</h2>
-                <p className="text-2xl font-bold text-white mt-1">{Math.round(totalCalories / 7)} cal</p>
+                <h2 className="text-lg font-semibold text-carbs-foreground">Weekly Average</h2>
+                <p className="text-2xl font-bold text-carbs-foreground mt-1">{Math.round(totalCalories / 7)} cal</p>
               </div>
             </Card>
           </div>
