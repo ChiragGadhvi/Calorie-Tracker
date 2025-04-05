@@ -14,7 +14,7 @@ const DailyProgress = ({ totalCalories, totalProtein, calorieGoal, proteinGoal }
   const proteinPercentage = Math.min((totalProtein / proteinGoal) * 100, 100);
 
   return (
-    <Card className="glass-card border-border shadow-md hover:shadow-lg transition-all rounded-xl">
+    <Card className="bg-secondary border-border shadow-md hover:shadow-lg transition-all rounded-xl">
       <CardContent className="p-6 space-y-6">
         <div>
           <div className="flex justify-between mb-2">

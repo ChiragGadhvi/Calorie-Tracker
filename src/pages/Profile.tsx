@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Settings, Upload, Mail, Calendar, Trophy, Activity, Heart, Target, ChevronRight } from 'lucide-react';
+import { LogOut, Settings, Upload, ChevronRight, Target, Trophy, Activity, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -96,7 +96,7 @@ const Profile = () => {
 
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <div className="flex flex-col items-center space-y-6">
-          <div className="relative mb-4">
+          <div className="relative">
             <Avatar className="h-24 w-24 border-2 border-primary/30">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt="Profile" />
@@ -123,31 +123,29 @@ const Profile = () => {
             />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-            {stats.map(({ icon: Icon, label, value, progress }) => (
-              <Card key={label} className="glass-card hover:scale-[1.02] transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-primary/10 rounded-full">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">{label}</p>
-                      <p className="text-lg font-semibold text-white">{value}</p>
-                    </div>
+          {/* Stats cards */}
+          {stats.map((stat, index) => (
+            <Card key={index} className="w-full bg-secondary border-border rounded-xl">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <stat.icon className="h-5 w-5 text-primary" />
                   </div>
-                  <Progress value={progress} className="h-1" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <div>
+                    <p className="text-sm text-gray-400">{stat.label}</p>
+                    <p className="text-lg font-semibold text-white">{stat.value}</p>
+                  </div>
+                </div>
+                <Progress value={stat.progress} className="h-3 bg-muted/70 rounded-full [&>div]:bg-primary" />
+              </CardContent>
+            </Card>
+          ))}
 
-          <div className="w-full space-y-4">
-            <Card className="glass-card border-border hover:shadow-md transition-all">
-              <CardHeader>
-                <CardTitle className="text-white">Account Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {/* Account Settings section */}
+          <div className="w-full">
+            <h2 className="text-xl text-white font-semibold mb-4 text-left">Account Settings</h2>
+            <Card className="bg-secondary border-border w-full">
+              <CardContent className="p-4 space-y-4">
                 <Button
                   variant="outline"
                   className="w-full justify-between bg-muted hover:bg-muted/80 text-white"
@@ -179,41 +177,6 @@ const Profile = () => {
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
                 </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card border-border hover:shadow-md transition-all">
-              <CardHeader>
-                <CardTitle className="text-white">Achievements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 rounded-full">
-                        <Trophy className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">30-Day Streak</p>
-                        <p className="text-sm text-gray-400">Logged meals for 30 consecutive days</p>
-                      </div>
-                    </div>
-                    <Progress value={80} className="w-20 h-1" />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 rounded-full">
-                        <Target className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">Goal Crusher</p>
-                        <p className="text-sm text-gray-400">Hit protein goals 10 times</p>
-                      </div>
-                    </div>
-                    <Progress value={60} className="w-20 h-1" />
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>

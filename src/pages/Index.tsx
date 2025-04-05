@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
@@ -209,7 +208,7 @@ const Index = () => {
       <div className="max-w-4xl mx-auto px-4 pt-6 pb-4">
         <div className="space-y-6">
           {subscription && (
-            <Card className="glass-card border-border shadow-md hover:shadow-lg transition-all rounded-xl">
+            <Card className="bg-secondary border-border shadow-md rounded-xl overflow-hidden">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -234,39 +233,33 @@ const Index = () => {
           )}
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="bg-secondary border-border shadow-md p-4 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-full text-primary">
-                  <Award className="h-5 w-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-400">Current Streak</p>
-                  <p className="text-lg font-semibold text-white">{streak} days</p>
-                </div>
+            <Card className="rounded-2xl p-6 bg-secondary border-border">
+              <div className="absolute top-4 right-4">
+                <Award className="h-5 w-5 text-primary/60" />
+              </div>
+              <div className="mt-2 mb-1">
+                <h2 className="text-lg font-semibold text-white">Current Streak</h2>
+                <p className="text-2xl font-bold text-white mt-1">{streak} days</p>
               </div>
             </Card>
             
-            <Card className="bg-secondary border-border shadow-md p-4 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-accent/30 rounded-full text-accent">
-                  <Utensils className="h-5 w-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-400">Today's Meals</p>
-                  <p className="text-lg font-semibold text-white">{todaysMeals.length}</p>
-                </div>
+            <Card className="rounded-2xl p-6 bg-secondary border-border">
+              <div className="absolute top-4 right-4">
+                <Utensils className="h-5 w-5 text-accent/60" />
+              </div>
+              <div className="mt-2 mb-1">
+                <h2 className="text-lg font-semibold text-white">Today's Meals</h2>
+                <p className="text-2xl font-bold text-white mt-1">{todaysMeals.length}</p>
               </div>
             </Card>
             
-            <Card className="bg-secondary border-border shadow-md p-4 rounded-xl col-span-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-full text-blue-500">
-                  <TrendingUp className="h-5 w-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-400">Weekly Average</p>
-                  <p className="text-lg font-semibold text-white">{Math.round(totalCalories / 7)} cal</p>
-                </div>
+            <Card className="rounded-2xl p-6 bg-secondary border-border col-span-2">
+              <div className="absolute top-4 right-4">
+                <TrendingUp className="h-5 w-5 text-blue-500/60" />
+              </div>
+              <div className="mt-2 mb-1">
+                <h2 className="text-lg font-semibold text-white">Weekly Average</h2>
+                <p className="text-2xl font-bold text-white mt-1">{Math.round(totalCalories / 7)} cal</p>
               </div>
             </Card>
           </div>
