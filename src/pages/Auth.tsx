@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Google } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -182,7 +182,7 @@ const Auth = () => {
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
           >
-            <Google className="w-5 h-5" />
+            <Mail className="w-5 h-5" />
             {googleLoading ? 'Loading...' : 'Sign in with Google'}
           </Button>
 
