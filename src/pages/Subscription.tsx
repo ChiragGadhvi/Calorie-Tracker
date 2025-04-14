@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Check } from 'lucide-react';
+import { Check, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
 import { useNavigate } from 'react-router-dom';
@@ -48,42 +48,50 @@ const Subscription = () => {
   const navigate = useNavigate();
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [scriptError, setScriptError] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [loadAttempts, setLoadAttempts] = useState(0);
 
   // Verify Razorpay is loaded
   useEffect(() => {
     const checkRazorpayLoaded = () => {
       const isLoaded = typeof window.Razorpay !== 'undefined';
       console.log("Checking if Razorpay is loaded:", isLoaded);
-      setScriptLoaded(isLoaded);
+      if (isLoaded) {
+        setScriptLoaded(true);
+        setScriptError(false);
+      }
       return isLoaded;
     };
 
     // Check on mount
-    const isLoaded = checkRazorpayLoaded();
+    checkRazorpayLoaded();
     
-    // If not loaded yet, check again in 2 seconds
-    if (!isLoaded) {
-      const timer = setTimeout(() => {
-        checkRazorpayLoaded();
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, []);
+    // Set up an interval to check again in case of delayed loading
+    const interval = setInterval(() => {
+      const isLoaded = checkRazorpayLoaded();
+      if (isLoaded) {
+        clearInterval(interval);
+      }
+    }, 1000); // Check every second
+    
+    return () => clearInterval(interval);
+  }, [loadAttempts]);
 
   const handleSubscribe = async (planId: string) => {
     try {
       setLoading(planId);
       
       if (!window.Razorpay) {
-        console.error("Razorpay SDK not loaded");
+        console.error("Razorpay SDK not loaded, attempted to load:", loadAttempts);
         toast({
           title: "Payment system not available",
-          description: "Please refresh the page and try again",
+          description: "We're trying to load the payment system. Please try again in a few seconds.",
           variant: "destructive",
         });
+        
+        // Auto-retry loading the script
+        handleRetryScriptLoad();
         setLoading(null);
-        setScriptError(true);
         return;
       }
 
@@ -108,6 +116,8 @@ const Subscription = () => {
       const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
         body: { planId, userId: user.id },
       });
+
+      console.log("Order response:", orderData);
 
       if (orderError) {
         console.error("Order creation error:", orderError);
@@ -235,12 +245,14 @@ const Subscription = () => {
     console.log("Razorpay script loaded successfully");
     setScriptLoaded(true);
     setScriptError(false);
+    setIsRetrying(false);
   };
 
   const handleScriptError = () => {
     console.error("Failed to load Razorpay script");
     setScriptLoaded(false);
     setScriptError(true);
+    setIsRetrying(false);
     toast({
       title: "Payment system error",
       description: "Failed to load the payment system. Please try again later.",
@@ -250,6 +262,7 @@ const Subscription = () => {
 
   // Try to reload the script if it failed
   const handleRetryScriptLoad = () => {
+    setIsRetrying(true);
     setScriptError(false);
     setScriptLoaded(false);
     
@@ -260,6 +273,7 @@ const Subscription = () => {
     // Remove any existing script
     const existingScript = document.querySelector('script[src*="checkout.razorpay.com"]');
     if (existingScript) {
+      console.log("Removing existing Razorpay script");
       document.head.removeChild(existingScript);
     }
     
@@ -267,9 +281,20 @@ const Subscription = () => {
     const script = document.createElement('script');
     script.src = scriptSrc;
     script.async = true;
-    script.onload = handleScriptLoad;
-    script.onerror = handleScriptError;
+    script.onload = () => {
+      console.log("Razorpay script manually loaded");
+      setScriptLoaded(true);
+      setScriptError(false);
+      setIsRetrying(false);
+      setLoadAttempts(prev => prev + 1);
+    };
+    script.onerror = () => {
+      console.error("Failed to manually load Razorpay script");
+      setScriptError(true);
+      setIsRetrying(false);
+    };
     document.head.appendChild(script);
+    console.log("Attempting to manually load Razorpay script:", scriptSrc);
   };
 
   return (
@@ -288,12 +313,23 @@ const Subscription = () => {
 
         {scriptError && (
           <div className="mb-6 p-4 bg-red-900/50 border border-red-700 rounded-lg">
-            <p className="text-white text-center mb-2">Failed to load payment system</p>
+            <div className="flex items-center gap-2 justify-center mb-3">
+              <AlertTriangle className="text-red-400 h-5 w-5" />
+              <p className="text-white text-center">Failed to load payment system</p>
+            </div>
             <Button 
               className="w-full"
               onClick={handleRetryScriptLoad}
+              disabled={isRetrying}
             >
-              Retry Loading Payment System
+              {isRetrying ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                  Retrying...
+                </span>
+              ) : (
+                'Retry Loading Payment System'
+              )}
             </Button>
           </div>
         )}

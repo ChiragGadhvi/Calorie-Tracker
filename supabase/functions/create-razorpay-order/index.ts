@@ -12,12 +12,17 @@ const razorpaySecretKey = Deno.env.get('RAZORPAY_SECRET_KEY') || '';
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-console.log("Edge function initialized with Razorpay key_id:", razorpayKeyId ? "Present" : "Missing");
-console.log("Razorpay key_id value:", razorpayKeyId);
+console.log("Edge function initialized");
+console.log("Razorpay key_id present:", razorpayKeyId ? "Yes" : "No");
+console.log("Razorpay secret_key present:", razorpaySecretKey ? "Yes" : "No");
 
 // Create Razorpay instance with extensive error handling
 let razorpay;
 try {
+  if (!razorpayKeyId || !razorpaySecretKey) {
+    throw new Error("Missing Razorpay API keys. Please configure RAZORPAY_KEY_ID and RAZORPAY_SECRET_KEY in your environment.");
+  }
+  
   razorpay = new Razorpay({
     key_id: razorpayKeyId,
     key_secret: razorpaySecretKey,
@@ -67,6 +72,7 @@ serve(async (req) => {
     console.log("Received request to create order");
     
     if (!razorpay) {
+      console.error("Razorpay is not properly initialized");
       throw new Error("Razorpay is not properly initialized. Check API keys.");
     }
     
@@ -117,13 +123,18 @@ serve(async (req) => {
         throw new Error("Razorpay key_id is missing in environment variables");
       }
       
+      // Return the complete response with all necessary information
+      const response = {
+        success: true,
+        order: order,
+        plan: plan,
+        key: razorpayKeyId,
+      };
+      
+      console.log("Returning response:", JSON.stringify(response));
+      
       return new Response(
-        JSON.stringify({
-          success: true,
-          order: order,
-          plan: plan,
-          key: razorpayKeyId,
-        }),
+        JSON.stringify(response),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } catch (razorpayError) {
