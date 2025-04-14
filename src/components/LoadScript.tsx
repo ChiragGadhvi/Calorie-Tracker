@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 interface LoadScriptProps {
   src: string;
   onLoad?: () => void;
+  onError?: () => void;
 }
 
-export const LoadScript = ({ src, onLoad }: LoadScriptProps) => {
+export const LoadScript = ({ src, onLoad, onError }: LoadScriptProps) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,12 @@ export const LoadScript = ({ src, onLoad }: LoadScriptProps) => {
       onLoad?.();
     };
 
+    // Handle script error
+    script.onerror = () => {
+      console.error(`Error loading script: ${src}`);
+      onError?.();
+    };
+
     // Append script to document head
     document.head.appendChild(script);
 
@@ -38,7 +45,7 @@ export const LoadScript = ({ src, onLoad }: LoadScriptProps) => {
       // In most cases, for third-party scripts like Razorpay, 
       // we might want to keep them loaded throughout the app
     };
-  }, [src, onLoad]);
+  }, [src, onLoad, onError]);
 
   return null;
 };
