@@ -16,6 +16,8 @@ const razorpay = new Razorpay({
   key_secret: razorpaySecretKey,
 });
 
+console.log("Edge function initialized with Razorpay key_id:", razorpayKeyId ? "Present" : "Missing");
+
 // Define subscription plans
 const SUBSCRIPTION_PLANS = {
   BASIC: {
@@ -53,9 +55,14 @@ serve(async (req) => {
   }
 
   try {
-    const { planId, userId } = await req.json();
+    console.log("Received request to create order");
+    const requestBody = await req.json();
+    const { planId, userId } = requestBody;
+    
+    console.log("Request data:", { planId, userId });
     
     if (!planId || !userId) {
+      console.error("Missing required parameters:", { planId, userId });
       return new Response(
         JSON.stringify({ error: 'Plan ID and User ID are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -65,11 +72,14 @@ serve(async (req) => {
     // Get plan details
     const plan = SUBSCRIPTION_PLANS[planId];
     if (!plan) {
+      console.error("Invalid plan selected:", planId);
       return new Response(
         JSON.stringify({ error: 'Invalid plan selected' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log("Found plan:", plan.name, "with amount:", plan.amount);
 
     // Create order in Razorpay
     const orderOptions = {
@@ -82,17 +92,25 @@ serve(async (req) => {
       }
     };
 
-    const order = await razorpay.orders.create(orderOptions);
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        order: order,
-        plan: plan,
-        key: razorpayKeyId,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.log("Creating order with options:", orderOptions);
+    
+    try {
+      const order = await razorpay.orders.create(orderOptions);
+      console.log("Order created successfully:", order.id);
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          order: order,
+          plan: plan,
+          key: razorpayKeyId,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (razorpayError) {
+      console.error("Razorpay API error:", razorpayError);
+      throw new Error(`Razorpay API error: ${razorpayError.message || razorpayError}`);
+    }
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
     return new Response(
