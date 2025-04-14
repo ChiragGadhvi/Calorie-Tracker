@@ -11,12 +11,21 @@ const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID') || '';
 const razorpaySecretKey = Deno.env.get('RAZORPAY_SECRET_KEY') || '';
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-const razorpay = new Razorpay({
-  key_id: razorpayKeyId,
-  key_secret: razorpaySecretKey,
-});
 
 console.log("Edge function initialized with Razorpay key_id:", razorpayKeyId ? "Present" : "Missing");
+console.log("Razorpay key_id value:", razorpayKeyId);
+
+// Create Razorpay instance with extensive error handling
+let razorpay;
+try {
+  razorpay = new Razorpay({
+    key_id: razorpayKeyId,
+    key_secret: razorpaySecretKey,
+  });
+  console.log("Razorpay instance created successfully");
+} catch (error) {
+  console.error("Failed to initialize Razorpay:", error);
+}
 
 // Define subscription plans
 const SUBSCRIPTION_PLANS = {
@@ -56,6 +65,11 @@ serve(async (req) => {
 
   try {
     console.log("Received request to create order");
+    
+    if (!razorpay) {
+      throw new Error("Razorpay is not properly initialized. Check API keys.");
+    }
+    
     const requestBody = await req.json();
     const { planId, userId } = requestBody;
     
@@ -98,6 +112,11 @@ serve(async (req) => {
       const order = await razorpay.orders.create(orderOptions);
       console.log("Order created successfully:", order.id);
       
+      // Make sure key_id is properly included in the response
+      if (!razorpayKeyId) {
+        throw new Error("Razorpay key_id is missing in environment variables");
+      }
+      
       return new Response(
         JSON.stringify({
           success: true,
@@ -109,7 +128,7 @@ serve(async (req) => {
       );
     } catch (razorpayError) {
       console.error("Razorpay API error:", razorpayError);
-      throw new Error(`Razorpay API error: ${razorpayError.message || razorpayError}`);
+      throw new Error(`Razorpay API error: ${razorpayError.message || JSON.stringify(razorpayError)}`);
     }
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
