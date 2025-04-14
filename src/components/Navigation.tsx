@@ -12,7 +12,7 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showCamera, setShowCamera] = useState(false);
-  const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [hasNoAnalyses, setHasNoAnalyses] = useState(false);
   const [remainingAnalyses, setRemainingAnalyses] = useState<number | null>(null);
 
   const checkAnalysisLimit = async () => {
@@ -29,7 +29,7 @@ const Navigation = () => {
       if (error) throw error;
 
       setRemainingAnalyses(subscription.remaining_analyses);
-      setHasReachedLimit(subscription.remaining_analyses <= 0);
+      setHasNoAnalyses(subscription.remaining_analyses <= 0);
     } catch (error) {
       console.error('Error checking analysis limit:', error);
     }
@@ -59,12 +59,13 @@ const Navigation = () => {
   }, []);
 
   const handleScanClick = () => {
-    if (hasReachedLimit) {
+    if (hasNoAnalyses) {
       toast({
-        title: "Analysis Limit Reached",
-        description: "Thank you for using the app! You've completed all available meal analyses.",
+        title: "No meal analyses remaining",
+        description: "Purchase a subscription to analyze more meals.",
         duration: 4000,
       });
+      navigate('/subscription');
     } else {
       setShowCamera(true);
     }
@@ -76,7 +77,7 @@ const Navigation = () => {
 
   return (
     <>
-      {showCamera && !hasReachedLimit && (
+      {showCamera && !hasNoAnalyses && (
         <CameraComponent
           onCapture={(imageData) => {
             setShowCamera(false);
@@ -102,14 +103,13 @@ const Navigation = () => {
             <div className="relative -mt-5">
               <button
                 onClick={handleScanClick}
-                className={`rounded-full p-4 ${hasReachedLimit ? 'bg-gray-500' : 'bg-primary'} text-white shadow-lg transition-transform hover:scale-105`}
-                disabled={hasReachedLimit}
+                className={`rounded-full p-4 ${hasNoAnalyses ? 'bg-gray-500' : 'bg-primary'} text-white shadow-lg transition-transform hover:scale-105`}
               >
                 <Camera className="h-6 w-6" />
               </button>
-              {hasReachedLimit && (
+              {hasNoAnalyses && (
                 <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">
-                  Completed
+                  Get More
                 </span>
               )}
             </div>

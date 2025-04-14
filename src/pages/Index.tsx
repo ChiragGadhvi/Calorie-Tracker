@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Award, Utensils, TrendingUp } from 'lucide-react';
+import { LogOut, Award, Utensils, TrendingUp, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
@@ -170,8 +169,6 @@ const Index = () => {
     }
   };
 
-  const TOTAL_ANALYSES = 2;
-
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="bg-secondary py-6 px-4">
@@ -219,15 +216,24 @@ const Index = () => {
                     <div>
                       <p className="text-sm text-gray-400">Remaining Analyses</p>
                       <p className="text-lg font-semibold text-white">
-                        {subscription.remaining_analyses}/{TOTAL_ANALYSES}
+                        {subscription.remaining_analyses}
                         {subscription.remaining_analyses === 0 && (
                           <span className="ml-2 text-sm text-gray-500">
-                            (Thank you for using the app!)
+                            (Buy more analyses)
                           </span>
                         )}
                       </p>
                     </div>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
+                    onClick={() => navigate('/subscription')}
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-1" />
+                    Get More
+                  </Button>
                 </div>
               </CardContent>
             </Card>

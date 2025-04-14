@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, Barcode, Tag, BookOpen, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const Scan = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [hasNoAnalyses, setHasNoAnalyses] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -31,13 +30,13 @@ const Scan = () => {
         if (error) throw error;
 
         if (subscription.remaining_analyses <= 0) {
-          setHasReachedLimit(true);
+          setHasNoAnalyses(true);
           toast({
-            title: "Analysis Limit Reached",
-            description: `You've used all your available meal analyses. Each user gets 3 free analyses for testing.`,
+            title: "No Analyses Remaining",
+            description: "Purchase a subscription to analyze more meals.",
             duration: 6000,
           });
-          navigate('/');
+          navigate('/subscription');
           return;
         }
       } catch (error) {
@@ -48,7 +47,7 @@ const Scan = () => {
     checkLimit();
   }, [toast, navigate]);
 
-  if (hasReachedLimit) {
+  if (hasNoAnalyses) {
     return null;
   }
 
@@ -74,13 +73,13 @@ const Scan = () => {
 
       if (!response.ok) {
         if (response.status === 403 && data.error === 'No analyses remaining') {
-          setHasReachedLimit(true);
+          setHasNoAnalyses(true);
           toast({
-            title: "Analysis Limit Reached",
-            description: `You've used all your available meal analyses. Each user gets 3 free analyses for testing.`,
+            title: "No Analyses Remaining",
+            description: "Purchase a subscription to analyze more meals.",
             duration: 6000,
           });
-          navigate('/');
+          navigate('/subscription');
           return null;
         }
         throw new Error(data.error || 'Failed to analyze image');
@@ -96,7 +95,7 @@ const Scan = () => {
   };
 
   const handleCapture = async (imageData: string) => {
-    if (hasReachedLimit) {
+    if (hasNoAnalyses) {
       navigate('/');
       return;
     }
@@ -161,7 +160,7 @@ const Scan = () => {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (hasReachedLimit) {
+    if (hasNoAnalyses) {
       navigate('/');
       return;
     }
@@ -271,7 +270,7 @@ const Scan = () => {
             <Button
               onClick={() => setShowCamera(true)}
               className="h-16 button-gradient rounded-xl text-white shadow-md"
-              disabled={isAnalyzing || hasReachedLimit}
+              disabled={isAnalyzing || hasNoAnalyses}
             >
               <Camera className="mr-2 h-6 w-6" /> Take Photo
             </Button>
@@ -280,7 +279,7 @@ const Scan = () => {
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
               className="h-16 bg-secondary/50 text-white border-white/10 rounded-xl"
-              disabled={isAnalyzing || hasReachedLimit}
+              disabled={isAnalyzing || hasNoAnalyses}
             >
               <Upload className="mr-2 h-6 w-6" /> Upload Image
             </Button>
@@ -291,7 +290,7 @@ const Scan = () => {
               accept="image/*"
               onChange={handleFileUpload}
               className="hidden"
-              disabled={hasReachedLimit}
+              disabled={hasNoAnalyses}
             />
           </div>
           

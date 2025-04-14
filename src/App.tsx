@@ -10,6 +10,7 @@ import Goals from '@/pages/Goals';
 import History from '@/pages/History';
 import Profile from '@/pages/Profile';
 import Scan from '@/pages/Scan';
+import Subscription from '@/pages/Subscription';
 import NotFound from '@/pages/NotFound';
 
 function App() {
@@ -92,6 +93,10 @@ function App() {
         <Route
           path="/scan"
           element={session ? <Scan /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/subscription"
+          element={session ? <Subscription /> : <Navigate to="/" replace />}
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
