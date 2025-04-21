@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, Barcode, Tag, BookOpen, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,11 +15,37 @@ const Scan = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Remove Razorpay/Payment checks: No redirect to payment/subscription!
   useEffect(() => {
-    // Payment/Analysis limit logic removed; allow usage
-    setHasNoAnalyses(false);
-  }, []);
+    const checkLimit = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: subscription, error } = await supabase
+          .from('subscriptions')
+          .select('remaining_analyses')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (subscription.remaining_analyses <= 0) {
+          setHasNoAnalyses(true);
+          toast({
+            title: "No Analyses Remaining",
+            description: "Purchase a subscription to analyze more meals.",
+            duration: 6000,
+          });
+          navigate('/subscription');
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking analysis limit:', error);
+      }
+    };
+
+    checkLimit();
+  }, [toast, navigate]);
 
   if (hasNoAnalyses) {
     return null;
@@ -47,17 +72,23 @@ const Scan = () => {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 403 && data.error === 'No analyses remaining') {
+          setHasNoAnalyses(true);
+          toast({
+            title: "No Analyses Remaining",
+            description: "Purchase a subscription to analyze more meals.",
+            duration: 6000,
+          });
+          navigate('/subscription');
+          return null;
+        }
         throw new Error(data.error || 'Failed to analyze image');
       }
 
       return data;
     } catch (error) {
-      toast({
-        title: "Error analyzing meal",
-        description: "There was a problem processing your image. Please try again.",
-        variant: "destructive",
-      });
-      return null;
+      console.error('Error analyzing image:', error);
+      throw error;
     } finally {
       setIsAnalyzing(false);
     }
@@ -68,6 +99,7 @@ const Scan = () => {
       navigate('/');
       return;
     }
+
     toast({
       title: "Analyzing meal...",
       description: "Please wait while we process your image.",
@@ -106,6 +138,7 @@ const Scan = () => {
           name: analysis.name,
           description: analysis.description,
         }]);
+
       if (insertError) throw insertError;
 
       toast({
@@ -115,6 +148,7 @@ const Scan = () => {
       
       navigate('/');
     } catch (error: any) {
+      console.error('Error:', error);
       toast({
         title: "Error analyzing meal",
         description: "There was a problem processing your image. Please try again.",

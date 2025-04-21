@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp, ShoppingCart } from 'lucide-react';
@@ -10,8 +9,6 @@ import DailyProgress from '@/components/DailyProgress';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import MealList from '@/components/MealList';
-import Onboarding from '@/components/Onboarding';
-import FeedbackPopup from '@/components/FeedbackPopup';
 
 interface Meal {
   id: string;
@@ -27,34 +24,7 @@ interface Subscription {
   remaining_analyses: number;
 }
 
-const TILE_STYLES = [
-  "from-soft-green to-[#A8E890]", // Soft green gradient (from palette)
-  "from-soft-yellow to-[#FFF7CD]", // Soft yellow gradient
-  "from-soft-purple to-[#C8A4D4]", // Soft purple gradient
-  "from-soft-pink to-[#FFD6E0]",   // Soft pink gradient
-  "from-soft-peach to-[#FEC6A1]",  // Soft peach/orange gradient
-];
-
-// Updated onboarding pages with cute food emojis and clearer steps
-const pages = [
-  {
-    emoji: "🍔",
-    title: "Snap a Photo",
-    desc: "Take a picture of your meal to analyze nutrition."
-  },
-  {
-    emoji: "📊",
-    title: "Track Your Progress",
-    desc: "See calories and protein instantly. Stay motivated!"
-  },
-  {
-    emoji: "🥕🍎🍰",
-    title: "Stay Healthy!",
-    desc: "Get insights and keep moving towards your goals."
-  },
-];
-
-export default function Index() {
+const Index = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -62,31 +32,14 @@ export default function Index() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [streak, setStreak] = useState(5);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
-  // Show onboarding popup for new users
-  useEffect(() => {
-    const hasOnboarded = localStorage.getItem('hasOnboarded');
-    if (!hasOnboarded) setShowOnboarding(true);
-  }, []);
-
-  // Hide onboarding and store flag
-  const handleCompleteOnboarding = () => {
-    localStorage.setItem('hasOnboarded', 'true');
-    setShowOnboarding(false);
-  };
-
-  // Fetch meals for logged in user
   const fetchMeals = async () => {
     try {
-      if (!user) return;
-      console.log('Fetching meals for user:', user.id);
+      console.log('Fetching meals for user:', user?.id);
       const { data, error } = await supabase
         .from('meals')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -102,7 +55,6 @@ export default function Index() {
     }
   };
 
-  // Fetch subscription is kept but without Razorpay/payments influence.
   const fetchSubscription = async (userId: string) => {
     console.log('Fetching subscription for user:', userId);
     const { data: subscriptionData, error } = await supabase
@@ -186,13 +138,6 @@ export default function Index() {
       supabase.removeChannel(channel);
     };
   }, [user]);
-
-  // After 2 meals are logged, show the feedback popup once
-  useEffect(() => {
-    if (meals.length >= 2 && !feedbackSubmitted && !showFeedback) {
-      setTimeout(() => setShowFeedback(true), 200);
-    }
-  }, [meals.length, feedbackSubmitted, showFeedback]);
 
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
@@ -280,8 +225,8 @@ export default function Index() {
                       </p>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
+                  <Button 
+                    variant="outline" 
                     size="sm"
                     className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
                     onClick={() => navigate('/subscription')}
@@ -295,33 +240,33 @@ export default function Index() {
           )}
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-soft-green to-[#A8E890] border-none shadow-md hover:shadow-lg transition-all">
-              <div className="absolute top-4 right-4 text-black/40">
-                <Award className="h-5 w-5" />
+            <Card className="rounded-2xl p-6 bg-calories border-border shadow-md hover:shadow-lg transition-all">
+              <div className="absolute top-4 right-4">
+                <Award className="h-5 w-5 text-white/60" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-black">Current Streak</h2>
-                <p className="text-2xl font-bold text-black mt-1">{streak} days</p>
+                <h2 className="text-lg font-semibold text-white">Current Streak</h2>
+                <p className="text-2xl font-bold text-white mt-1">{streak} days</p>
               </div>
             </Card>
-
-            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-soft-yellow to-[#FFF7CD] border-none shadow-md hover:shadow-lg transition-all">
-              <div className="absolute top-4 right-4 text-yellow-700/60">
-                <Utensils className="h-5 w-5" />
+            
+            <Card className="rounded-2xl p-6 bg-protein border-border shadow-md hover:shadow-lg transition-all">
+              <div className="absolute top-4 right-4">
+                <Utensils className="h-5 w-5 text-protein-foreground/60" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-yellow-900">Today's Meals</h2>
-                <p className="text-2xl font-bold text-yellow-900 mt-1">{todaysMeals.length}</p>
+                <h2 className="text-lg font-semibold text-protein-foreground">Today's Meals</h2>
+                <p className="text-2xl font-bold text-protein-foreground mt-1">{todaysMeals.length}</p>
               </div>
             </Card>
-
-            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-soft-purple to-[#C8A4D4] border-none shadow-md hover:shadow-lg transition-all col-span-2">
-              <div className="absolute top-4 right-4 text-purple-700/60">
-                <TrendingUp className="h-5 w-5" />
+            
+            <Card className="rounded-2xl p-6 bg-carbs border-border shadow-md hover:shadow-lg transition-all col-span-2">
+              <div className="absolute top-4 right-4">
+                <TrendingUp className="h-5 w-5 text-carbs-foreground/60" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-purple-800">Weekly Average</h2>
-                <p className="text-2xl font-bold text-purple-800 mt-1">{Math.round(totalCalories / 7)} cal</p>
+                <h2 className="text-lg font-semibold text-carbs-foreground">Weekly Average</h2>
+                <p className="text-2xl font-bold text-carbs-foreground mt-1">{Math.round(totalCalories / 7)} cal</p>
               </div>
             </Card>
           </div>
@@ -341,9 +286,9 @@ export default function Index() {
                   .from('meals')
                   .delete()
                   .eq('id', id);
-
+                
                 if (error) throw error;
-
+                
                 fetchMeals();
                 toast({
                   title: "Meal deleted",
@@ -359,26 +304,12 @@ export default function Index() {
             }}
             onUpdateMeal={fetchMeals}
           />
-
-          {showOnboarding && <Onboarding onComplete={handleCompleteOnboarding} />}
-          {showFeedback && !feedbackSubmitted && (
-            <FeedbackPopup
-              onClose={() => setShowFeedback(false)}
-              onSubmit={async (feedback) => {
-                if (!user) return;
-                await supabase.from('feedback').insert([
-                  { user_id: user.id, feedback }
-                ]);
-                setFeedbackSubmitted(true);
-                setShowFeedback(false);
-                toast({ title: "Thanks for your feedback!" });
-              }}
-            />
-          )}
         </div>
       </div>
 
       <Navigation />
     </div>
   );
-}
+};
+
+export default Index;
