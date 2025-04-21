@@ -9,6 +9,8 @@ import DailyProgress from '@/components/DailyProgress';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import MealList from '@/components/MealList';
+import Onboarding from '@/components/Onboarding';
+import FeedbackPopup from '@/components/FeedbackPopup';
 
 interface Meal {
   id: string;
@@ -24,6 +26,14 @@ interface Subscription {
   remaining_analyses: number;
 }
 
+const TILE_STYLES = [
+  "from-[#F2FCE2] to-[#A8E890]", // Green
+  "from-[#FFD766] to-[#FFF7CD]", // Yellow
+  "from-[#E5DEFF] to-[#C8A4D4]", // Purple
+  "from-[#FFDEE2] to-[#FFD6E0]", // Pink
+  "from-[#FDE1D3] to-[#FEC6A1]", // Peach/Orange
+];
+
 const Index = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
@@ -32,6 +42,21 @@ const Index = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [streak, setStreak] = useState(5);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+
+  // Show onboarding popup for new users
+  useEffect(() => {
+    const hasOnboarded = localStorage.getItem('hasOnboarded');
+    if (!hasOnboarded) setShowOnboarding(true);
+  }, []);
+
+  // Hide onboarding and store flag
+  const handleCompleteOnboarding = () => {
+    localStorage.setItem('hasOnboarded', 'true');
+    setShowOnboarding(false);
+  };
 
   const fetchMeals = async () => {
     try {
@@ -139,6 +164,13 @@ const Index = () => {
     };
   }, [user]);
 
+  // Handle feedback modal after user logs two meals
+  useEffect(() => {
+    if (meals.length === 2 && !feedbackSubmitted && !showFeedback) {
+      setTimeout(() => setShowFeedback(true), 200); // Small delay after 2nd meal
+    }
+  }, [meals.length, feedbackSubmitted, showFeedback]);
+
   const todaysMeals = meals.filter(meal => {
     const today = new Date();
     const mealDate = new Date(meal.created_at);
@@ -240,33 +272,33 @@ const Index = () => {
           )}
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="rounded-2xl p-6 bg-calories border-border shadow-md hover:shadow-lg transition-all">
-              <div className="absolute top-4 right-4">
-                <Award className="h-5 w-5 text-white/60" />
+            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-[#F2FCE2] to-[#A8E890] border-none shadow-md hover:shadow-lg transition-all">
+              <div className="absolute top-4 right-4 text-black/40">
+                <Award className="h-5 w-5" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-white">Current Streak</h2>
-                <p className="text-2xl font-bold text-white mt-1">{streak} days</p>
+                <h2 className="text-lg font-semibold text-black">Current Streak</h2>
+                <p className="text-2xl font-bold text-black mt-1">{streak} days</p>
               </div>
             </Card>
             
-            <Card className="rounded-2xl p-6 bg-protein border-border shadow-md hover:shadow-lg transition-all">
-              <div className="absolute top-4 right-4">
-                <Utensils className="h-5 w-5 text-protein-foreground/60" />
+            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-[#FFD766] to-[#FFF7CD] border-none shadow-md hover:shadow-lg transition-all">
+              <div className="absolute top-4 right-4 text-yellow-700/60">
+                <Utensils className="h-5 w-5" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-protein-foreground">Today's Meals</h2>
-                <p className="text-2xl font-bold text-protein-foreground mt-1">{todaysMeals.length}</p>
+                <h2 className="text-lg font-semibold text-yellow-900">Today's Meals</h2>
+                <p className="text-2xl font-bold text-yellow-900 mt-1">{todaysMeals.length}</p>
               </div>
             </Card>
             
-            <Card className="rounded-2xl p-6 bg-carbs border-border shadow-md hover:shadow-lg transition-all col-span-2">
-              <div className="absolute top-4 right-4">
-                <TrendingUp className="h-5 w-5 text-carbs-foreground/60" />
+            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-[#E5DEFF] to-[#C8A4D4] border-none shadow-md hover:shadow-lg transition-all col-span-2">
+              <div className="absolute top-4 right-4 text-purple-700/60">
+                <TrendingUp className="h-5 w-5" />
               </div>
               <div className="mt-2 mb-1">
-                <h2 className="text-lg font-semibold text-carbs-foreground">Weekly Average</h2>
-                <p className="text-2xl font-bold text-carbs-foreground mt-1">{Math.round(totalCalories / 7)} cal</p>
+                <h2 className="text-lg font-semibold text-purple-800">Weekly Average</h2>
+                <p className="text-2xl font-bold text-purple-800 mt-1">{Math.round(totalCalories / 7)} cal</p>
               </div>
             </Card>
           </div>
@@ -304,6 +336,22 @@ const Index = () => {
             }}
             onUpdateMeal={fetchMeals}
           />
+
+          {showOnboarding && <Onboarding onComplete={handleCompleteOnboarding} />}
+          {showFeedback && !feedbackSubmitted && (
+            <FeedbackPopup 
+              onClose={() => setShowFeedback(false)}
+              onSubmit={async (feedback) => {
+                if (!user) return;
+                await supabase.from('feedback').insert([
+                  { user_id: user.id, feedback }
+                ]);
+                setFeedbackSubmitted(true);
+                setShowFeedback(false);
+                toast({ title: "Thanks for your feedback!" });
+              }}
+            />
+          )}
         </div>
       </div>
 
