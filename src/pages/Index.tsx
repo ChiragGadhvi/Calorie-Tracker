@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Award, Utensils, TrendingUp, ShoppingCart } from 'lucide-react';
@@ -27,14 +28,33 @@ interface Subscription {
 }
 
 const TILE_STYLES = [
-  "from-[#F2FCE2] to-[#A8E890]", // Green
-  "from-[#FFD766] to-[#FFF7CD]", // Yellow
-  "from-[#E5DEFF] to-[#C8A4D4]", // Purple
-  "from-[#FFDEE2] to-[#FFD6E0]", // Pink
-  "from-[#FDE1D3] to-[#FEC6A1]", // Peach/Orange
+  "from-soft-green to-[#A8E890]", // Soft green gradient (from palette)
+  "from-soft-yellow to-[#FFF7CD]", // Soft yellow gradient
+  "from-soft-purple to-[#C8A4D4]", // Soft purple gradient
+  "from-soft-pink to-[#FFD6E0]",   // Soft pink gradient
+  "from-soft-peach to-[#FEC6A1]",  // Soft peach/orange gradient
 ];
 
-const Index = () => {
+// Updated onboarding pages with cute food emojis and clearer steps
+const pages = [
+  {
+    emoji: "🍔",
+    title: "Snap a Photo",
+    desc: "Take a picture of your meal to analyze nutrition."
+  },
+  {
+    emoji: "📊",
+    title: "Track Your Progress",
+    desc: "See calories and protein instantly. Stay motivated!"
+  },
+  {
+    emoji: "🥕🍎🍰",
+    title: "Stay Healthy!",
+    desc: "Get insights and keep moving towards your goals."
+  },
+];
+
+export default function Index() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -58,13 +78,15 @@ const Index = () => {
     setShowOnboarding(false);
   };
 
+  // Fetch meals for logged in user
   const fetchMeals = async () => {
     try {
-      console.log('Fetching meals for user:', user?.id);
+      if (!user) return;
+      console.log('Fetching meals for user:', user.id);
       const { data, error } = await supabase
         .from('meals')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -80,6 +102,7 @@ const Index = () => {
     }
   };
 
+  // Fetch subscription is kept but without Razorpay/payments influence.
   const fetchSubscription = async (userId: string) => {
     console.log('Fetching subscription for user:', userId);
     const { data: subscriptionData, error } = await supabase
@@ -164,10 +187,10 @@ const Index = () => {
     };
   }, [user]);
 
-  // Handle feedback modal after user logs two meals
+  // After 2 meals are logged, show the feedback popup once
   useEffect(() => {
-    if (meals.length === 2 && !feedbackSubmitted && !showFeedback) {
-      setTimeout(() => setShowFeedback(true), 200); // Small delay after 2nd meal
+    if (meals.length >= 2 && !feedbackSubmitted && !showFeedback) {
+      setTimeout(() => setShowFeedback(true), 200);
     }
   }, [meals.length, feedbackSubmitted, showFeedback]);
 
@@ -257,8 +280,8 @@ const Index = () => {
                       </p>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
                     onClick={() => navigate('/subscription')}
@@ -272,7 +295,7 @@ const Index = () => {
           )}
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-[#F2FCE2] to-[#A8E890] border-none shadow-md hover:shadow-lg transition-all">
+            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-soft-green to-[#A8E890] border-none shadow-md hover:shadow-lg transition-all">
               <div className="absolute top-4 right-4 text-black/40">
                 <Award className="h-5 w-5" />
               </div>
@@ -281,8 +304,8 @@ const Index = () => {
                 <p className="text-2xl font-bold text-black mt-1">{streak} days</p>
               </div>
             </Card>
-            
-            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-[#FFD766] to-[#FFF7CD] border-none shadow-md hover:shadow-lg transition-all">
+
+            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-soft-yellow to-[#FFF7CD] border-none shadow-md hover:shadow-lg transition-all">
               <div className="absolute top-4 right-4 text-yellow-700/60">
                 <Utensils className="h-5 w-5" />
               </div>
@@ -291,8 +314,8 @@ const Index = () => {
                 <p className="text-2xl font-bold text-yellow-900 mt-1">{todaysMeals.length}</p>
               </div>
             </Card>
-            
-            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-[#E5DEFF] to-[#C8A4D4] border-none shadow-md hover:shadow-lg transition-all col-span-2">
+
+            <Card className="relative rounded-2xl p-6 bg-gradient-to-br from-soft-purple to-[#C8A4D4] border-none shadow-md hover:shadow-lg transition-all col-span-2">
               <div className="absolute top-4 right-4 text-purple-700/60">
                 <TrendingUp className="h-5 w-5" />
               </div>
@@ -318,9 +341,9 @@ const Index = () => {
                   .from('meals')
                   .delete()
                   .eq('id', id);
-                
+
                 if (error) throw error;
-                
+
                 fetchMeals();
                 toast({
                   title: "Meal deleted",
@@ -339,7 +362,7 @@ const Index = () => {
 
           {showOnboarding && <Onboarding onComplete={handleCompleteOnboarding} />}
           {showFeedback && !feedbackSubmitted && (
-            <FeedbackPopup 
+            <FeedbackPopup
               onClose={() => setShowFeedback(false)}
               onSubmit={async (feedback) => {
                 if (!user) return;
@@ -358,6 +381,4 @@ const Index = () => {
       <Navigation />
     </div>
   );
-};
-
-export default Index;
+}
